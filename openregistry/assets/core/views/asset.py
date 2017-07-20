@@ -54,7 +54,7 @@ class AssetsResource(APIResourceListing):
                         extra=context_unpack(self.request, {'MESSAGE_ID': 'asset_create'}, {'asset_id': asset_id, 'assetID': asset.assetID}))
             self.request.response.status = 201
             self.request.response.headers[
-                'Location'] = self.request.route_url('{}:asset'.format(asset.procurementMethodType), asset_id=asset_id)
+                'Location'] = self.request.route_url('{}:Asset'.format(asset.assetType), asset_id=asset_id)
             return {
                 'data': asset.serialize(asset.status),
                 'access': {

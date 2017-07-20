@@ -33,6 +33,7 @@ def validate_patch_asset_data(request, error_handler, **kwargs):
     request.context.status = default_status
 
 
+
 def validate_asset_status_update_in_terminated_status(request, error_handler, **kwargs):
     asset = request.context
     if request.authenticated_role != 'Administrator' and asset.status in ['active', 'deleted']:

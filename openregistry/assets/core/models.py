@@ -2,7 +2,6 @@
 from schematics.transforms import whitelist, blacklist, export_loop
 from schematics.types import StringType, BaseType
 from schematics.types.compound import ModelType, DictType
-from schematics.exceptions import ValidationError
 from couchdb_schematics.document import SchematicsDocument
 from pyramid.security import Allow
 from zope.interface import implementer
@@ -22,7 +21,7 @@ create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'd
 edit_role = (blacklist('status', 'assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
-Administrator_role = whitelist('status', 'mode',)
+Administrator_role = whitelist('status', 'mode')
 
 
 class IAsset(IORContent):
@@ -37,7 +36,6 @@ def get_asset(model):
 
 class Document(BaseDocument):
     documentOf = StringType(required=True, choices=['asset'], default='asset')
-
 
 
 @implementer(IAsset)
@@ -58,22 +56,6 @@ class BaseAsset(SchematicsDocument, Model):
 
     _attachments = DictType(DictType(BaseType), default=dict())  # couchdb attachments
     revisions = ListType(ModelType(Revision), default=list())
-
-    def get_role(self):
-        root = self.__parent__
-        request = root.request
-        if request.authenticated_role == 'Administrator':
-            role = 'Administrator'
-        else:
-            role = 'edit_{}'.format(request.context.status)
-        return role
-
-    def __acl__(self):
-        acl = [
-            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'edit_asset'),
-            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_asset_documents'),
-        ]
-        return acl
 
     def __repr__(self):
         return '<%s:%r@%r>' % (type(self).__name__, self.id, self.rev)
