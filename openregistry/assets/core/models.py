@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist, export_loop
-from schematics.types import StringType, BaseType
+from schematics.types import BaseType, StringType, IntType, MD5Type
 from schematics.types.compound import ModelType, DictType
 from couchdb_schematics.document import SchematicsDocument
 from pyramid.security import Allow
@@ -8,10 +8,10 @@ from zope.interface import implementer
 from schematics.types.serializable import serializable
 
 from openregistry.api.models import (
-    Revision, Organization, Model, Period, schematics_embedded_role,
+    Revision, Organization, Model, schematics_embedded_role,
     IsoDateTimeType, ListType, Document as BaseDocument,
-    Location, Value, schematics_default_role,
-    Address
+    Location, schematics_default_role, ItemClassification,
+    Classification, Unit, Value
 )
 
 from openregistry.api.interfaces import IORContent
@@ -40,22 +40,35 @@ class Document(BaseDocument):
 
 @implementer(IAsset)
 class BaseAsset(SchematicsDocument, Model):
-    title = StringType(required=True)
-    title_en = StringType()
-    title_ru = StringType()
-    documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the asset.
-    description = StringType()
-    description_en = StringType()
-    description_ru = StringType()
-    date = IsoDateTimeType()
-    dateModified = IsoDateTimeType()
     assetID = StringType()  # AssetID should always be the same as the OCID. It is included to make the flattened data structure more convenient.
     owner = StringType()
     owner_token = StringType()
     mode = StringType(choices=['test'])
+    date = IsoDateTimeType()
+    dateModified = IsoDateTimeType()
+    title = StringType(required=True)
+    title_en = StringType()
+    title_ru = StringType()
+    description = StringType()
+    description_en = StringType()
+    description_ru = StringType()
+    value = ModelType(Value)
+    assetCustodian = ModelType(Organization)
+    documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the asset.
+    classification = ModelType(ItemClassification)
+    additionalClassifications = ListType(ModelType(Classification), default=list())
+    unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
+    quantity = IntType()  # The number of units required
+    location = ModelType(Location)
 
     _attachments = DictType(DictType(BaseType), default=dict())  # couchdb attachments
     revisions = ListType(ModelType(Revision), default=list())
+
+    create_accreditation = 1
+    edit_accreditation = 2
+
+
+    __name__ = ''
 
     def __repr__(self):
         return '<%s:%r@%r>' % (type(self).__name__, self.id, self.rev)
@@ -84,15 +97,6 @@ class BaseAsset(SchematicsDocument, Model):
         self._data.update(data)
         return self
 
-
-class Asset(BaseAsset):
-    status = StringType(choices=['draft', 'pending', 'active', 'deleted'], default='pending')
-
-    create_accreditation = 1
-    edit_accreditation = 2
-
-    __name__ = ''
-
     def get_role(self):
         root = self.__parent__
         request = root.request
@@ -108,3 +112,11 @@ class Asset(BaseAsset):
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_asset_documents'),
         ]
         return acl
+
+
+class Asset(BaseAsset):
+    status = StringType(choices=['draft', 'pending', 'active', 'deleted'], default='pending')
+    relatedLot = MD5Type()
+
+    create_accreditation = 1
+    edit_accreditation = 2
