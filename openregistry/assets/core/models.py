@@ -82,21 +82,6 @@ class BaseAsset(SchematicsDocument, Model):
         """A property that is serialized by schematics exports."""
         return self._id
 
-    def import_data(self, raw_data, **kw):
-        """
-        Converts and imports the raw data into the instance of the model
-        according to the fields in the model.
-        :param raw_data:
-            The data to be imported.
-        """
-        data = self.convert(raw_data, **kw)
-        del_keys = [k for k in data.keys() if data[k] == self.__class__.fields[k].default or data[k] == getattr(self, k)]
-        for k in del_keys:
-            del data[k]
-
-        self._data.update(data)
-        return self
-
     def get_role(self):
         root = self.__parent__
         request = root.request
