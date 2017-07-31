@@ -11,7 +11,7 @@ from openregistry.api.models import (
     Revision, Organization, Model, schematics_embedded_role,
     IsoDateTimeType, ListType, Document as BaseDocument,
     Location, schematics_default_role, ItemClassification,
-    Classification, Unit, Value
+    Classification, Unit, Value, Address, plain_role, listing_role
 )
 
 from openregistry.api.interfaces import IORContent
@@ -40,6 +40,20 @@ class Document(BaseDocument):
 
 @implementer(IAsset)
 class BaseAsset(SchematicsDocument, Model):
+    class Options:
+        roles = {
+            'create': create_role,
+            'draft': edit_role,
+            'plain': plain_role,
+            'edit': edit_role,
+            'edit_pending': blacklist('revisions'),
+            'pending': view_role,
+            'view': view_role,
+            'listing': listing_role,
+            'Administrator': Administrator_role,
+            'default': schematics_default_role,
+        }
+
     assetID = StringType()  # AssetID should always be the same as the OCID. It is included to make the flattened data structure more convenient.
     owner = StringType()
     owner_token = StringType()
@@ -53,12 +67,13 @@ class BaseAsset(SchematicsDocument, Model):
     description_en = StringType()
     description_ru = StringType()
     value = ModelType(Value)
-    assetCustodian = ModelType(Organization)
+    assetCustodian = ModelType(Organization, required=True)
     documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the asset.
-    classification = ModelType(ItemClassification)
+    classification = ModelType(ItemClassification, required=True)
     additionalClassifications = ListType(ModelType(Classification), default=list())
     unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
     quantity = IntType()  # The number of units required
+    address = ModelType(Address)
     location = ModelType(Location)
 
     _attachments = DictType(DictType(BaseType), default=dict())  # couchdb attachments
@@ -97,6 +112,10 @@ class BaseAsset(SchematicsDocument, Model):
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_asset_documents'),
         ]
         return acl
+
+    def __local_roles__(self):
+        roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
+        return roles
 
 
 class Asset(BaseAsset):
