@@ -3,6 +3,7 @@ import unittest
 
 from openregistry.assets.core.tests import asset, migration
 
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(asset.suite())
