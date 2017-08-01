@@ -1,10 +1,10 @@
-from pkg_resources import iter_entry_points
 from pyramid.interfaces import IRequest
 from openregistry.assets.core.utils import (
     extract_asset, isAsset, register_assetType,
     asset_from_data, SubscribersPicker
 )
 from openregistry.api.interfaces import IContentConfigurator
+from openregistry.api.utils import load_plugins
 from openregistry.assets.core.models import IAsset
 from openregistry.assets.core.adapters import AssetConfigurator
 
@@ -29,7 +29,4 @@ def includeme(config):
     # search for plugins
     settings = config.get_settings()
     plugins = settings.get('plugins') and settings['plugins'].split(',')
-    for entry_point in iter_entry_points('openregistry.assets.core.plugins'):
-        if not plugins or entry_point.name in plugins:
-            plugin = entry_point.load()
-            plugin(config)
+    load_plugins(config, group='openregistry.assets.core.plugins', plugins=plugins)
