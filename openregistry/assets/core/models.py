@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist, export_loop
 from schematics.types import BaseType, StringType, IntType, MD5Type
-from schematics.types.compound import ModelType, DictType
+from schematics.types.compound import ModelType, DictType, ListType
 from couchdb_schematics.document import SchematicsDocument
 from pyramid.security import Allow
 from zope.interface import implementer
 from schematics.types.serializable import serializable
 
-from openregistry.api.models import (
-    Revision, Organization, Model, schematics_embedded_role,
-    IsoDateTimeType, ListType, Document as BaseDocument,
-    Location, schematics_default_role, ItemClassification,
-    Classification, Unit, Value, Address, plain_role, listing_role
-)
+from openregistry.api.models.ocds import Organization, Revision, Document as BaseDocument, Location, ItemClassification, Classification, Unit, Unit, Value, Address
+from openregistry.api.models.schematics_extender import Model, IsoDateTimeType
+from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
 
 from openregistry.api.interfaces import IORContent
 
