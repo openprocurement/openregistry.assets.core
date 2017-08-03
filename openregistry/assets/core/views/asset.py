@@ -37,7 +37,6 @@ class AssetsResource(APIResourceListing):
     @json_view(content_type="application/json", permission='create_asset', validators=(validate_asset_data,))
     def post(self):
         """This API request is targeted to creating new Asset."""
-
         asset_id = generate_id()
         asset = self.request.validated['asset']
         asset.id = asset_id
@@ -61,5 +60,3 @@ class AssetsResource(APIResourceListing):
                     'token': asset.owner_token
                 }
             }
-
-

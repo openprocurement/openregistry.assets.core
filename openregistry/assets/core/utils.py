@@ -148,8 +148,8 @@ def asset_serialize(request, asset_data, fields):
     if asset is None:
         return dict([(i, asset_data.get(i, '')) for i in ['assetType', 'dateModified', 'id']])
     return dict([(i, j) for i, j in asset.serialize(asset.status).items() if i in fields])
-    
-    
+
+
 def save_asset(request):
     asset = request.validated['asset']
     if asset.mode == u'test':

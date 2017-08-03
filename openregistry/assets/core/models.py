@@ -19,6 +19,7 @@ edit_role = (blacklist('status', 'assetType', 'owner_token', 'owner', '_attachme
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
+bot_role = (whitelist('status'))
 
 
 class IAsset(IORContent):
@@ -40,14 +41,23 @@ class BaseAsset(SchematicsDocument, Model):
     class Options:
         roles = {
             'create': create_role,
-            'draft': edit_role,
+            # draft role
+            'draft': view_role,
+            'edit_draft': edit_role,
             'plain': plain_role,
             'edit': edit_role,
+            # pending role
+            'pending': view_role,
             'edit_pending': blacklist('revisions'),
             'pending': view_role,
+            # active role
+            'active': view_role,
+            'edit_active': whitelist(),
             'view': view_role,
             'listing': listing_role,
             'Administrator': Administrator_role,
+            # bots_role
+            'bot': bot_role,
             'default': schematics_default_role,
         }
 
@@ -99,6 +109,8 @@ class BaseAsset(SchematicsDocument, Model):
         request = root.request
         if request.authenticated_role == 'Administrator':
             role = 'Administrator'
+        elif request.authenticated_role == 'bot':
+            role = 'bot'
         else:
             role = 'edit_{}'.format(request.context.status)
         return role

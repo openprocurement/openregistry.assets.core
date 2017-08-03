@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from openregistry.api.validation import validate_data, validate_json_data
-from openregistry.api.utils import update_logging_context,  raise_operation_error
+from openregistry.api.utils import update_logging_context, raise_operation_error
 
 
 def validate_asset_data(request, error_handler, **kwargs):
@@ -26,15 +26,3 @@ def validate_patch_asset_data(request, error_handler, **kwargs):
     data = validate_json_data(request)
     if request.context.status != 'draft':
         return validate_data(request, type(request.asset), True, data)
-    default_status = type(request.asset).fields['status'].default
-    if data.get('status') != default_status:
-        raise_operation_error(request, error_handler, 'Can\'t update asset in current (draft) status')
-    request.validated['data'] = {'status': default_status}
-    request.context.status = default_status
-
-
-
-def validate_asset_status_update_in_terminated_status(request, error_handler, **kwargs):
-    asset = request.context
-    if request.authenticated_role != 'Administrator' and asset.status in ['active', 'deleted']:
-        raise_operation_error(request, error_handler, 'Can\'t update asset in current ({}) status'.format(asset.status))
