@@ -47,7 +47,6 @@ class BaseAsset(SchematicsDocument, Model):
             'plain': plain_role,
             'edit': edit_role,
             # pending role
-            'pending': view_role,
             'edit_pending': blacklist('revisions'),
             'pending': view_role,
             # active role
@@ -56,6 +55,9 @@ class BaseAsset(SchematicsDocument, Model):
             'view': view_role,
             'listing': listing_role,
             'Administrator': Administrator_role,
+            # deleted role  # TODO: replace with 'delete' view for asset, temporary solution for tests
+            'deleted': view_role,
+            'edit_deleted': blacklist('revisions'),
             # bots_role
             'bot': bot_role,
             'default': schematics_default_role,
@@ -128,7 +130,7 @@ class BaseAsset(SchematicsDocument, Model):
 
 
 class Asset(BaseAsset):
-    status = StringType(choices=['draft', 'pending', 'active', 'deleted'], default='pending')
+    status = StringType(choices=['draft', 'pending', 'active', 'deleted', 'complete'], default='pending')
     relatedLot = MD5Type()
 
     create_accreditation = 1
