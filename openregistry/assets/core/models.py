@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist, export_loop
 from schematics.types import BaseType, StringType, IntType, MD5Type
-from schematics.types.compound import ModelType, DictType, ListType
+from schematics.types.compound import ModelType, DictType
 from couchdb_schematics.document import SchematicsDocument
 from pyramid.security import Allow
 from zope.interface import implementer
 from schematics.types.serializable import serializable
 
 from openregistry.api.models.ocds import Organization, Revision, Document as BaseDocument, Location, ItemClassification, Classification, Unit, Unit, Value, Address
-from openregistry.api.models.schematics_extender import Model, IsoDateTimeType
+from openregistry.api.models.schematics_extender import Model, IsoDateTimeType, ListType
 from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
 
 from openregistry.api.interfaces import IORContent
 
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + schematics_embedded_role)
-edit_role = (blacklist('status', 'assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
+create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents') + schematics_embedded_role)
+edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
@@ -55,6 +55,9 @@ class BaseAsset(SchematicsDocument, Model):
             'view': view_role,
             'listing': listing_role,
             'Administrator': Administrator_role,
+            # complete role
+            'complete': view_role,
+            'edit_complete': blacklist('revisions'),
             # deleted role  # TODO: replace with 'delete' view for asset, temporary solution for tests
             'deleted': view_role,
             'edit_deleted': blacklist('revisions'),
@@ -91,7 +94,6 @@ class BaseAsset(SchematicsDocument, Model):
     create_accreditation = 1
     edit_accreditation = 2
 
-
     __name__ = ''
 
     def __repr__(self):
@@ -116,6 +118,22 @@ class BaseAsset(SchematicsDocument, Model):
         else:
             role = 'edit_{}'.format(request.context.status)
         return role
+
+    def import_data(self, raw_data, **kw):
+        """
+        Converts and imports the raw data into the instance of the model
+        according to the fields in the model.
+        :param raw_data:
+            The data to be imported.
+        """
+        data = self.convert(raw_data, **kw)
+        del_keys = [k for k in data.keys() if
+                    data[k] == self.__class__.fields[k].default or data[k] == getattr(self, k)]
+        for k in del_keys:
+            del data[k]
+
+        self._data.update(data)
+        return self
 
     def __acl__(self):
         acl = [

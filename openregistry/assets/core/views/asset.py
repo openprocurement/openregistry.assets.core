@@ -50,7 +50,7 @@ class AssetsResource(APIResourceListing):
         self.request.validated['asset_src'] = {}
         if save_asset(self.request):
             self.LOGGER.info('Created asset {} ({})'.format(asset_id, asset.assetID),
-                        extra=context_unpack(self.request, {'MESSAGE_ID': 'asset_create'}, {'asset_id': asset_id, 'assetID': asset.assetID}))
+                             extra=context_unpack(self.request, {'MESSAGE_ID': 'asset_create'}, {'asset_id': asset_id, 'assetID': asset.assetID}))
             self.request.response.status = 201
             self.request.response.headers[
                 'Location'] = self.request.route_url('{}:Asset'.format(asset.assetType), asset_id=asset_id)
