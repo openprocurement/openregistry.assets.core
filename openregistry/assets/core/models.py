@@ -59,7 +59,7 @@ class BaseAsset(SchematicsDocument, Model):
             'deleted': view_role,
             'edit_deleted': blacklist('revisions'),
             # bots_role
-            'bot': bot_role,
+            'bot1': bot_role,
             'default': schematics_default_role,
         }
 
@@ -111,8 +111,8 @@ class BaseAsset(SchematicsDocument, Model):
         request = root.request
         if request.authenticated_role == 'Administrator':
             role = 'Administrator'
-        elif request.authenticated_role == 'bot':
-            role = 'bot'
+        elif request.authenticated_role == 'bot1':
+            role = 'bot1'
         else:
             role = 'edit_{}'.format(request.context.status)
         return role

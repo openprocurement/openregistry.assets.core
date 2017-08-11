@@ -20,7 +20,7 @@ class Root(object):
         (Allow, 'group:brokers', 'edit_asset'),
         (Allow, 'group:Administrator', 'edit_asset'),
         (Allow, 'group:admins', ALL_PERMISSIONS),
-        (Allow, 'group:bot', 'edit_asset')
+        (Allow, 'group:bot1', 'edit_asset')
     ]
 
     def __init__(self, request):
