@@ -45,7 +45,7 @@ class AssetsResource(APIResourceListing):
         self.request.registry.notify(AssetInitializeEvent(asset))
         if self.request.json_body['data'].get('status') == 'draft':
             asset.status = 'draft'
-        set_ownership(asset, self.request)  # rewrite as subscriber?
+        acc = set_ownership(asset, self.request)
         self.request.validated['asset'] = asset
         self.request.validated['asset_src'] = {}
         if save_asset(self.request):
@@ -56,7 +56,5 @@ class AssetsResource(APIResourceListing):
                 'Location'] = self.request.route_url('{}:Asset'.format(asset.assetType), asset_id=asset_id)
             return {
                 'data': asset.serialize(asset.status),
-                'access': {
-                    'token': asset.owner_token
-                }
+                'access': acc
             }
