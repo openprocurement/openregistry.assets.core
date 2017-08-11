@@ -38,6 +38,7 @@ def factory(request):
     asset.__parent__ = root
     request.validated['asset'] = request.validated['db_doc'] = asset
     request.validated['asset_status'] = asset.status
+    request.validated['resource_type'] = "asset"
     if request.method != 'GET':
         request.validated['asset_src'] = asset.serialize('plain')
     if request.matchdict.get('document_id'):
