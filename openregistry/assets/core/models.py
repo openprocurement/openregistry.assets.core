@@ -2,14 +2,13 @@
 from schematics.transforms import whitelist, blacklist, export_loop
 from schematics.types import BaseType, StringType, IntType, MD5Type
 from schematics.types.compound import ModelType, DictType
-from couchdb_schematics.document import SchematicsDocument
 from pyramid.security import Allow
 from zope.interface import implementer
-from schematics.types.serializable import serializable
 
-from openregistry.api.models.ocds import Organization, Revision, Document as BaseDocument, Location, ItemClassification, Classification, Unit, Unit, Value, Address
-from openregistry.api.models.schematics_extender import Model, IsoDateTimeType, ListType
+from openregistry.api.models.ocds import Organization, Document as BaseDocument, Location, ItemClassification, Classification, Unit, Unit, Value, Address
+from openregistry.api.models.schematics_extender import IsoDateTimeType, ListType
 from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
+from openregistry.api.models.common import BaseResourceItem
 
 from openregistry.api.interfaces import IORContent
 
@@ -37,7 +36,7 @@ class Document(BaseDocument):
 
 
 @implementer(IAsset)
-class BaseAsset(SchematicsDocument, Model):
+class BaseAsset(BaseResourceItem):
     class Options:
         roles = {
             'create': create_role,
@@ -67,11 +66,7 @@ class BaseAsset(SchematicsDocument, Model):
         }
 
     assetID = StringType()  # AssetID should always be the same as the OCID. It is included to make the flattened data structure more convenient.
-    owner = StringType()
-    owner_token = StringType()
-    mode = StringType(choices=['test'])
     date = IsoDateTimeType()
-    dateModified = IsoDateTimeType()
     title = StringType(required=True)
     title_en = StringType()
     title_ru = StringType()
@@ -88,25 +83,12 @@ class BaseAsset(SchematicsDocument, Model):
     address = ModelType(Address)
     location = ModelType(Location)
 
-    _attachments = DictType(DictType(BaseType), default=dict())  # couchdb attachments
-    revisions = ListType(ModelType(Revision), default=list())
-
     create_accreditation = 1
     edit_accreditation = 2
-
-    __name__ = ''
-
-    def __repr__(self):
-        return '<%s:%r@%r>' % (type(self).__name__, self.id, self.rev)
 
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
         return roles
-
-    @serializable(serialized_name='id')
-    def doc_id(self):
-        """A property that is serialized by schematics exports."""
-        return self._id
 
     def get_role(self):
         root = self.__parent__
@@ -119,32 +101,12 @@ class BaseAsset(SchematicsDocument, Model):
             role = 'edit_{}'.format(request.context.status)
         return role
 
-    def import_data(self, raw_data, **kw):
-        """
-        Converts and imports the raw data into the instance of the model
-        according to the fields in the model.
-        :param raw_data:
-            The data to be imported.
-        """
-        data = self.convert(raw_data, **kw)
-        del_keys = [k for k in data.keys() if
-                    data[k] == self.__class__.fields[k].default or data[k] == getattr(self, k)]
-        for k in del_keys:
-            del data[k]
-
-        self._data.update(data)
-        return self
-
     def __acl__(self):
         acl = [
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'edit_asset'),
             (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_asset_documents'),
         ]
         return acl
-
-    def __local_roles__(self):
-        roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
-        return roles
 
 
 class Asset(BaseAsset):

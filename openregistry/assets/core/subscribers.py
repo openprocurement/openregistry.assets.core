@@ -6,7 +6,7 @@ from openregistry.api.utils import update_logging_context
 
 
 @subscriber(ErrorDesctiptorEvent)
-def tender_error_handler(event):
+def asset_error_handler(event):
     if 'asset' in event.request.validated:
         event.params['ASSET_REV'] = event.request.validated['asset'].rev
         event.params['ASSETID'] = event.request.validated['asset'].assetID
