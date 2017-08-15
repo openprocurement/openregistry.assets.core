@@ -18,7 +18,7 @@ edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'rev
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
-bot_role = (whitelist('status'))
+bot_role = (whitelist('status', 'relatedLot'))
 
 
 class IAsset(IORContent):
