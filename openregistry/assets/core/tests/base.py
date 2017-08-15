@@ -20,12 +20,14 @@ now = datetime.now()
 class BaseAssetWebTest(BaseWebTest):
     initial_data = None
     initial_status = None
-    initial_bids = None
-    initial_lots = None
     docservice = False
     relative_to = os.path.dirname(__file__)
 
     def set_status(self, status, extra=None):
+        data = {'status': status}
+        if status == "pending":
+            data['status'] = status
+
         if extra:
             data.update(extra)
 
@@ -33,14 +35,12 @@ class BaseAssetWebTest(BaseWebTest):
         asset.update(apply_data_patch(asset, data))
         self.db.save(asset)
 
-        authorization = self.app.authorization
-        self.app.authorization = ('Basic', ('chronograph', ''))
-        #response = self.app.patch_json('/assets/{}'.format(self.asset_id), {'data': {'id': self.asset_id}})
         response = self.app.get('/assets/{}'.format(self.asset_id))
-        self.app.authorization = authorization
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        return response
+        asset = response.json['data']
+        self.assertEqual(asset['status'], status)
+        return asset
 
     def setUp(self):
         super(BaseAssetWebTest, self).setUp()
@@ -84,45 +84,18 @@ class BaseAssetWebTest(BaseWebTest):
         query = {'Signature': signature, 'KeyID': keyid}
         return "http://localhost/get/{}?{}".format(uuid, urlencode(query))
 
-    def create_asset(self):
+    def create_asset(self, extra=None):
         data = deepcopy(self.initial_data)
-        if self.initial_lots:
-            lots = []
-            for i in self.initial_lots:
-                lot = deepcopy(i)
-                lot['id'] = uuid4().hex
-                lots.append(lot)
-            data['lots'] = self.initial_lots = lots
-            for i, item in enumerate(data['items']):
-                item['relatedLot'] = lots[i % len(lots)]['id']
+        if extra:
+            data.update(extra)
         response = self.app.post_json('/assets', {'data': data})
         asset = response.json['data']
         self.asset_token = response.json['access']['token']
         self.asset_id = asset['id']
         status = asset['status']
-        if self.initial_bids:
-            self.initial_bids_tokens = {}
-            response = self.set_status('active.asseting')
-            status = response.json['data']['status']
-            bids = []
-            for i in self.initial_bids:
-                if self.initial_lots:
-                    i = i.copy()
-                    value = i.pop('value')
-                    i['lotValues'] = [
-                        {
-                            'value': value,
-                            'relatedLot': l['id'],
-                        }
-                        for l in self.initial_lots
-                    ]
-                response = self.app.post_json('/assets/{}/bids'.format(self.asset_id), {'data': i})
-                self.assertEqual(response.status, '201 Created')
-                bids.append(response.json['data'])
-                self.initial_bids_tokens[response.json['data']['id']] = response.json['access']['token']
-            self.initial_bids = bids
         if self.initial_status != status:
-            self.set_status(self.initial_status)
+            asset = self.set_status(self.initial_status)
+        return asset
 
     def tearDownDS(self):
         SESSION.request = self._srequest

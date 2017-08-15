@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist, export_loop
-from schematics.types import BaseType, StringType, IntType, MD5Type
+from schematics.types.serializable import serializable
 from schematics.types.compound import ModelType, DictType
+from schematics.types import BaseType, StringType, IntType, MD5Type
 from pyramid.security import Allow
 from zope.interface import implementer
 
@@ -13,12 +14,12 @@ from openregistry.api.models.common import BaseResourceItem
 from openregistry.api.interfaces import IORContent
 
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents') + schematics_embedded_role)
+create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + schematics_embedded_role)
 edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
-bot_role = (whitelist('status'))
+bot_role = (whitelist('status', 'relatedLot'))
 
 
 class IAsset(IORContent):
@@ -46,7 +47,7 @@ class BaseAsset(BaseResourceItem):
             'plain': plain_role,
             'edit': edit_role,
             # pending role
-            'edit_pending': blacklist('revisions'),
+            'edit_pending': edit_role,
             'pending': view_role,
             # active role
             'active': view_role,
@@ -110,7 +111,7 @@ class BaseAsset(BaseResourceItem):
 
 
 class Asset(BaseAsset):
-    status = StringType(choices=['draft', 'pending', 'active', 'deleted', 'complete'], default='pending')
+    status = StringType(choices=['draft', 'pending', 'active', 'deleted', 'complete'], default="draft")
     relatedLot = MD5Type()
 
     create_accreditation = 1
