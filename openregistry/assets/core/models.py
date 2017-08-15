@@ -13,6 +13,8 @@ from openregistry.api.models.common import BaseResourceItem
 
 from openregistry.api.interfaces import IORContent
 
+from .constants import ASSET_STATUSES
+
 
 create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + schematics_embedded_role)
 edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
@@ -49,6 +51,9 @@ class BaseAsset(BaseResourceItem):
             # pending role
             'edit_pending': edit_role,
             'pending': view_role,
+            # verification role
+            'verification': view_role,
+            'edit_verification': whitelist(),
             # active role
             'active': view_role,
             'edit_active': whitelist(),
@@ -111,7 +116,7 @@ class BaseAsset(BaseResourceItem):
 
 
 class Asset(BaseAsset):
-    status = StringType(choices=['draft', 'pending', 'active', 'deleted', 'complete'], default="draft")
+    status = StringType(choices=ASSET_STATUSES, default="draft")
     relatedLot = MD5Type()
 
     create_accreditation = 1

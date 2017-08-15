@@ -24,8 +24,8 @@ def validate_asset_data(request, error_handler, **kwargs):
 
 def validate_patch_asset_data(request, error_handler, **kwargs):
     data = validate_json_data(request)
-    can_edit = request.content_configurator.available_statuses[request.context.status]['editing_permissions']
-    if request.authenticated_role not in can_edit:
+    editing_roles = request.content_configurator.available_statuses[request.context.status]['editing_permissions']
+    if request.authenticated_role not in editing_roles:
         msg = 'Can\'t update {} in current ({}) status'.format(request.validated['resource_type'],
                                                                request.context.status)
         raise_operation_error(request, error_handler, msg)
