@@ -21,7 +21,7 @@ edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'rev
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
 Administrator_role = whitelist('status', 'mode')
-bot_role = (whitelist('status', 'relatedLot'))
+concierge_role = (whitelist('status', 'relatedLot'))
 
 
 class IAsset(IORContent):
@@ -62,8 +62,8 @@ class BaseAsset(BaseResourceItem):
             # deleted role  # TODO: replace with 'delete' view for asset, temporary solution for tests
             'deleted': view_role,
             'edit_deleted': blacklist('revisions'),
-            # bots_role
-            'bot': bot_role,
+            # concierge_role
+            'concierge': concierge_role,
             'default': schematics_default_role,
         }
 
@@ -97,8 +97,8 @@ class BaseAsset(BaseResourceItem):
         request = root.request
         if request.authenticated_role == 'Administrator':
             role = 'Administrator'
-        elif request.authenticated_role == 'bot':
-            role = 'bot'
+        elif request.authenticated_role == 'concierge':
+            role = 'concierge'
         else:
             role = 'edit_{}'.format(request.context.status)
         return role
