@@ -6,7 +6,7 @@ from schematics.types import BaseType, StringType, IntType, MD5Type
 from pyramid.security import Allow
 from zope.interface import implementer
 
-from openregistry.api.models.ocds import Organization, Document as BaseDocument, Location, ItemClassification, Classification, Unit, Unit, Value, Address
+from openregistry.api.models.ocds import Organization, Document, Location, ItemClassification, Classification, Unit, Value, Address
 from openregistry.api.models.schematics_extender import IsoDateTimeType, ListType
 from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
 from openregistry.api.models.common import BaseResourceItem
@@ -32,10 +32,6 @@ def get_asset(model):
     while not IAsset.providedBy(model):
         model = model.__parent__
     return model
-
-
-class Document(BaseDocument):
-    documentOf = StringType(required=True, choices=['asset'], default='asset')
 
 
 @implementer(IAsset)

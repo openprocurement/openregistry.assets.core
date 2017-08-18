@@ -93,7 +93,7 @@ class BaseAssetWebTest(BaseWebTest):
         self.asset_token = response.json['access']['token']
         self.asset_id = asset['id']
         status = asset['status']
-        if self.initial_status != status:
+        if self.initial_status and self.initial_status != status:
             asset = self.set_status(self.initial_status)
         return asset
 
