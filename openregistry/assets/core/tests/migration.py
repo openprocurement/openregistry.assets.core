@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from openregistry.assets.core.tests.base import BaseWebTest
+from openregistry.api.tests.base import BaseWebTest
 from openregistry.assets.core.migration import migrate_data
 
 
