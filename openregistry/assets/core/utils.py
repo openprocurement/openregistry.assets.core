@@ -1,7 +1,6 @@
 from pyramid.exceptions import URLDecodeError
 from pyramid.compat import decode_path_info
 from cornice.resource import resource
-from jsonpointer import resolve_pointer
 from schematics.exceptions import ModelValidationError
 from pkg_resources import get_distribution
 from couchdb.http import ResourceConflict
@@ -17,7 +16,8 @@ from openregistry.api.utils import (
     get_revision_changes,
     context_unpack,
     get_now,
-    apply_data_patch
+    apply_data_patch,
+    prepare_revision
 )
 
 from openregistry.assets.core.constants import DEFAULT_ASSET_TYPE
@@ -156,31 +156,11 @@ def save_asset(request):
         set_modetest_titles(asset)
     patch = get_revision_changes(asset.serialize("plain"), request.validated['asset_src'])
     if patch:
-        now = get_now()
-        status_changes = [
-            p
-            for p in patch
-            if not p['path'].startswith('/bids/') and p['path'].endswith("/status") and p['op'] == "replace"
-        ]
-        for change in status_changes:
-            obj = resolve_pointer(asset, change['path'].replace('/status', ''))
-            if obj and hasattr(obj, "date"):
-                date_path = change['path'].replace('/status', '/date')
-                if obj.date and not any([p for p in patch if date_path == p['path']]):
-                    patch.append({"op": "replace",
-                                  "path": date_path,
-                                  "value": obj.date.isoformat()})
-                elif not obj.date:
-                    patch.append({"op": "remove", "path": date_path})
-                obj.date = now
-        asset.revisions.append(type(asset).revisions.model_class({
-            'author': request.authenticated_userid,
-            'changes': patch,
-            'rev': asset.rev
-        }))
+        revision = prepare_revision(asset, patch, request.authenticated_userid)
+        asset.revisions.append(type(asset).revisions.model_class(revision))
         old_dateModified = asset.dateModified
         if getattr(asset, 'modified', True):
-            asset.dateModified = now
+            asset.dateModified = get_now()
         try:
             asset.store(request.registry.db)
         except ModelValidationError, e:
