@@ -5,7 +5,7 @@ from openregistry.assets.core.design import (
 )
 
 from openregistry.api.utils import (
-    get_now, decrypt, encrypt, generate_id, json_view, set_ownership,
+    get_now, generate_id, json_view, set_ownership,
     context_unpack, APIResourceListing
 )
 

@@ -70,9 +70,9 @@ class AssetResourceTest(BaseAssetWebTest):
 
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(AssetResourceTest))
-    return suite
+    tests = unittest.TestSuite()
+    tests.addTest(unittest.makeSuite(AssetResourceTest))
+    return tests
 
 
 if __name__ == '__main__':

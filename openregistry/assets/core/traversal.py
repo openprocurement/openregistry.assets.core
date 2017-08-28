@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from pyramid.security import (
     ALL_PERMISSIONS,
     Allow,
-    Deny,
     Everyone,
 )
 from openregistry.api.traversal import get_item
