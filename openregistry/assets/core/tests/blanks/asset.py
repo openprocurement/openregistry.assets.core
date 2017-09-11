@@ -421,3 +421,26 @@ def administrator_change_complete_status(self):
     self.assertEqual(response.json['errors'][0]['name'], u'data')
     self.assertEqual(response.json['errors'][0]['location'], u'body')
     self.assertEqual(response.json['errors'][0]['description'], u"Can't update asset in current (complete) status")
+
+# AssetTest
+
+
+def simple_add_asset(self):
+
+    u = self.asset_model(self.initial_data)
+    u.assetID = "UA-X"
+
+    assert u.id is None
+    assert u.rev is None
+
+    u.store(self.db)
+
+    assert u.id is not None
+    assert u.rev is not None
+
+    fromdb = self.db.get(u.id)
+
+    assert u.assetID == fromdb['assetID']
+    assert u.doc_type == "Asset"
+
+    u.delete_instance(self.db)
