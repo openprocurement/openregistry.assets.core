@@ -40,3 +40,9 @@ def validate_asset_document_update_not_by_author_or_asset_owner(request, error_h
         request.errors.add('url', 'role', 'Can update document only author')
         request.errors.status = 403
         raise error_handler(request)
+
+def validate_document_operation_in_not_allowed_asset_status(request, error_handler, **kwargs):
+    status = request.validated['asset_status']
+    if status != 'pending':
+        raise_operation_error(request, error_handler,
+                              'Can\'t update document in current ({}) asset status'.format(status))
