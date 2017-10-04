@@ -7,9 +7,9 @@ ASSET_STATUSES = ['draft', 'pending', "verification",
 
 STATUS_CHANGES = {
     "draft": {
-        "editing_permissions": ["asset_owner"],
+        "editing_permissions": ["asset_owner", "Administrator"],
         "next_status": {
-            "pending": "asset_owner"
+            "pending": ["asset_owner", "Administrator"]
         }
     },
     "pending": {
