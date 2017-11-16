@@ -9,6 +9,7 @@ from .asset import (
     asset_concierge_patch,
     administrator_change_delete_status,
     administrator_change_complete_status,
+    patch_decimal,
     # AssetTest
     simple_add_asset,
     # AssetWorkflowTest
@@ -37,3 +38,5 @@ class AssetResourceTestMixin(object):
     test_15_check_active_asset = snitch(change_active_asset)
     test_16_check_deleted_asset = snitch(change_deleted_asset)
     test_17_check_complete_asset = snitch(change_complete_asset)
+
+    test_patch_decimal = snitch(patch_decimal)

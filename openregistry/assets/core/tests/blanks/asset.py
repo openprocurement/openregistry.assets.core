@@ -6,6 +6,34 @@ from openregistry.assets.core.constants import STATUS_CHANGES, ASSET_STATUSES
 # AssetResourceTest
 
 
+def patch_decimal(self):
+    from decimal import Decimal, ROUND_UP
+    response = self.app.get('/')
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(len(response.json['data']), 0)
+
+    asset = self.create_resource()
+
+    response = self.app.patch_json('/{}'.format(asset['id']),
+                                   headers=self.access_header,
+                                   params={'data': {'title': ' PATCHED'}})
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+
+    asset = response.json['data']
+
+    for quantity in [1, '1', 1.111, '1.111', 1.1111, '1.1111']:
+        asset['quantity'] = quantity
+        response = self.app.patch_json('/{}'.format(asset['id']),
+                                       headers=self.access_header,
+                                       params={'data': asset})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIsInstance(response.json['data']['quantity'], basestring)
+        rounded_quantity = float('{:.3f}'.format(float(quantity)))
+        self.assertEqual(response.json['data']['quantity'], rounded_quantity)
+
+
 def patch_asset(self):
     response = self.app.get('/')
     self.assertEqual(response.status, '200 OK')
