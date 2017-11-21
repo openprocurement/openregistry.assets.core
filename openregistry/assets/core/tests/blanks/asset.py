@@ -795,3 +795,40 @@ def change_complete_asset(self):
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['Administrator']:
         check_patch_status_403(self, '/{}'.format(asset['id']), status)
+
+
+def patch_decimal_without_items(self):
+    """Testing different decimal quantity (decimal_numbers) at the root of assets."""
+
+    asset = self.create_resource()
+    decimal_numbers = [3, '3', 7.658, '7.658', 2.3355, '2.3355']
+    for quantity in decimal_numbers:
+        response = self.app.patch_json('/{}'.format(asset['id']),
+                                       headers=self.access_header,
+                                       params={'data': {'quantity': quantity}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIsInstance(response.json['data']['quantity'], basestring)
+        rounded_quantity = round(float(quantity), 3)
+        self.assertEqual(response.json['data']['quantity'], rounded_quantity)
+
+
+def patch_decimal_with_items(self):
+    """ Testing different decimal quantity (decimal_numbers) at the root and items of assets."""
+
+    asset = self.create_resource()
+    decimal_numbers = [3, '3', 7.658, '7.658', 2.3355, '2.3355']
+    items = asset['items']
+    for quantity in decimal_numbers:
+        for item in items:
+            item['quantity'] = quantity
+        response = self.app.patch_json('/{}'.format(asset['id']),
+                                       headers=self.access_header,
+                                       params={'data': {'quantity': quantity, 'items': items}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIsInstance(response.json['data']['quantity'], basestring)
+        self.assertNotIsInstance(response.json['data']['items'][0]['quantity'], basestring)
+        rounded_quantity = round(float(quantity), 3)
+        self.assertEqual(response.json['data']['quantity'], rounded_quantity)
+        self.assertEqual(response.json['data']['items'][0]['quantity'], rounded_quantity)
