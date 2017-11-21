@@ -18,7 +18,7 @@ from .asset import (
     change_active_asset,
     change_deleted_asset,
     change_complete_asset,
-    patch_decimal_without_items,
+    patch_decimal_quantity,
 )
 
 
@@ -38,5 +38,5 @@ class AssetResourceTestMixin(object):
     test_15_check_active_asset = snitch(change_active_asset)
     test_16_check_deleted_asset = snitch(change_deleted_asset)
     test_17_check_complete_asset = snitch(change_complete_asset)
-    test_18_patch_decimal_without_items = snitch(patch_decimal_without_items)
+    test_18_patch_decimal_without_items = snitch(patch_decimal_quantity)
 
