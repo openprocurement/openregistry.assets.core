@@ -819,7 +819,7 @@ def patch_decimal_item_quantity(self):
     for quantity in [3, '3', 7.658, '7.658', 2.3355, '2.3355']:
         response = self.app.patch_json('/{}'.format(asset['id']),
                                        headers=self.access_header,
-                                       params={'data': {'items': [{'quantity': quantity}]}})
+                                       params={'data': {'items': [{'quantity': quantity} for _ in asset['items']]}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertNotIsInstance(response.json['data']['items'][0]['quantity'], basestring)
