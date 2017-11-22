@@ -38,5 +38,4 @@ class AssetResourceTestMixin(object):
     test_15_check_active_asset = snitch(change_active_asset)
     test_16_check_deleted_asset = snitch(change_deleted_asset)
     test_17_check_complete_asset = snitch(change_complete_asset)
-    test_18_patch_decimal_without_items = snitch(patch_decimal_quantity)
-
+    test_18_patch_patch_decimal_quantity = snitch(patch_decimal_quantity)
