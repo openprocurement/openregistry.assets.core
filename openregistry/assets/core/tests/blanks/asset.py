@@ -822,6 +822,6 @@ def patch_decimal_item_quantity(self):
                                        params={'data': {'items': [{'quantity': quantity} for _ in asset['items']]}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertNotIsInstance(response.json['data']['items'][0]['quantity'], basestring)
+        [self.assertNotIsInstance(item['quantity'], basestring) for item in response.json['data']['items']]
         rounded_quantity = round(float(quantity), 3)
-        self.assertEqual(response.json['data']['items'][0]['quantity'], rounded_quantity)
+        [self.assertEqual(item['quantity'], rounded_quantity) for item in response.json['data']['items']]
