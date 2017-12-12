@@ -5,11 +5,13 @@ from schematics.types import StringType, IntType, MD5Type
 from pyramid.security import Allow
 from zope.interface import implementer
 
-from openregistry.api.models.ocds import Organization, Document, Location, ItemClassification, Classification, Unit, Value, Address
+from openregistry.api.models.ocds import (
+    Organization, Document, Location, ItemClassification,
+    Classification, Unit, Value, Address, DecimalType
+)
 from openregistry.api.models.schematics_extender import IsoDateTimeType, ListType
 from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
 from openregistry.api.models.common import BaseResourceItem
-
 from openregistry.api.interfaces import IORContent
 
 from .constants import ASSET_STATUSES
@@ -80,7 +82,7 @@ class BaseAsset(BaseResourceItem):
     classification = ModelType(ItemClassification, required=True)
     additionalClassifications = ListType(ModelType(Classification), default=list())
     unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
-    quantity = IntType()  # The number of units required
+    quantity = DecimalType()  # The number of units required
     address = ModelType(Address)
     location = ModelType(Location)
 
