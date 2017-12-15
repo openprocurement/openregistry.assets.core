@@ -795,3 +795,35 @@ def change_complete_asset(self):
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['Administrator']:
         check_patch_status_403(self, '/{}'.format(asset['id']), status)
+
+
+def patch_decimal_quantity(self):
+    """Testing different decimal quantity (decimal_numbers) at the root of assets."""
+
+    asset = self.create_resource()
+    for quantity in [3, '3', 7.658, '7.658', 2.3355, '2.3355']:
+        response = self.app.patch_json('/{}'.format(asset['id']),
+                                       headers=self.access_header,
+                                       params={'data': {'quantity': quantity}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIsInstance(response.json['data']['quantity'], basestring)
+        rounded_quantity = round(float(quantity), 3)
+        self.assertEqual(response.json['data']['quantity'], rounded_quantity)
+
+
+def patch_decimal_item_quantity(self):
+    """ Testing different decimal quantity (decimal_numbers) at the root and items of assets."""
+
+    asset = self.create_resource()
+    for quantity in [3, '3', 7.658, '7.658', 2.3355, '2.3355']:
+        response = self.app.patch_json('/{}'.format(asset['id']),
+                                       headers=self.access_header,
+                                       params={'data': {'items': [{'quantity': quantity} for _ in asset['items']]}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        for item in response.json['data']['items']:
+            self.assertNotIsInstance(item['quantity'], basestring)
+        rounded_quantity = round(float(quantity), 3)
+        for item in response.json['data']['items']:
+            self.assertEqual(item['quantity'], rounded_quantity)
