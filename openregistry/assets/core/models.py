@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist
 from schematics.types.compound import ModelType
-from schematics.types import StringType, IntType, MD5Type
+from schematics.types import StringType, IntType, MD5Type, ValidationError
+from schematics_flexible.schematics_flexible import FlexibleModelType
 from pyramid.security import Allow
 from zope.interface import implementer
 
@@ -9,8 +10,9 @@ from openregistry.api.models.ocds import Organization, Document, Location, ItemC
 from openregistry.api.models.schematics_extender import IsoDateTimeType, ListType
 from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
 from openregistry.api.models.common import BaseResourceItem
-
 from openregistry.api.interfaces import IORContent
+
+from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
 from .constants import ASSET_STATUSES
 
@@ -83,9 +85,16 @@ class BaseAsset(BaseResourceItem):
     quantity = IntType()  # The number of units required
     address = ModelType(Address)
     location = ModelType(Location)
+    schema_properties = FlexibleModelType(SchemaStore())
 
     create_accreditation = 1
     edit_accreditation = 2
+
+    def validate_schema_properties(self, data, new_schema_properties):
+        """ Raise validation error if code in schema_properties mismatch
+            with classification id """
+        if new_schema_properties and not data['classification']['id'].startswith(new_schema_properties['code']):
+            raise ValidationError("classification id mismatch with schema_properties code")
 
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
