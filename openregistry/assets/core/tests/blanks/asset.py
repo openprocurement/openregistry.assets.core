@@ -674,13 +674,6 @@ def change_active_asset(self):
         check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
 
 
-    self.app.authorization = ('Basic', ('convoy', ''))
-
-    # Move from 'active' to one of blacklist status
-    for status in STATUS_BLACKLIST['active']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
-
-
     self.app.authorization = ('Basic', ('concierge', ''))
 
     # Move from 'active' to one of blacklist status
@@ -724,6 +717,19 @@ def change_active_asset(self):
 
     # Move from 'verification' to 'active' status
     check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+
+    # Move from 'active' to 'complete' status
+    check_patch_status_200(self, '/{}'.format(asset['id']), 'complete')
+
+    self.app.authorization = ('Basic', ('broker', ''))
+    asset = self.create_resource()
+
+
+    self.app.authorization = ('Basic', ('convoy', ''))
+
+    # Move from 'active' to one of blacklist status
+    for status in STATUS_BLACKLIST['active']['convoy']:
+        check_patch_status_403(self, '/{}'.format(asset['id']), status)
 
     # Move from 'active' to 'complete' status
     check_patch_status_200(self, '/{}'.format(asset['id']), 'complete')
@@ -795,3 +801,5 @@ def change_complete_asset(self):
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['Administrator']:
         check_patch_status_403(self, '/{}'.format(asset['id']), status)
+
+
