@@ -23,6 +23,7 @@ view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_
 
 Administrator_role = whitelist('status', 'mode')
 concierge_role = (whitelist('status', 'relatedLot'))
+convoy_role = (whitelist('status'))
 
 
 class IAsset(IORContent):
@@ -65,6 +66,7 @@ class BaseAsset(BaseResourceItem):
             'edit_deleted': blacklist('revisions'),
             # concierge_role
             'concierge': concierge_role,
+            'convoy': convoy_role,
             'default': schematics_default_role,
         }
 
@@ -100,6 +102,8 @@ class BaseAsset(BaseResourceItem):
             role = 'Administrator'
         elif request.authenticated_role == 'concierge':
             role = 'concierge'
+        elif request.authenticated_role == 'convoy':
+            role = 'convoy'
         else:
             role = 'edit_{}'.format(request.context.status)
         return role

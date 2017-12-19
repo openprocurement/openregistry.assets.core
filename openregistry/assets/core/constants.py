@@ -27,10 +27,10 @@ STATUS_CHANGES = {
         }
     },
     "active": {
-        "editing_permissions": ["concierge", "Administrator"],
+        "editing_permissions": ["convoy", "concierge", "Administrator"],
         "next_status": {
             "pending": ["concierge", "Administrator"],
-            "complete": ["concierge", "Administrator"]
+            "complete": ["convoy", "concierge", "Administrator"]
         }
     },
     "deleted": {
