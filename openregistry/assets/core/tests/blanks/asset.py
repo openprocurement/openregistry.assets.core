@@ -3,6 +3,8 @@
 from openregistry.api.tests.base import create_blacklist
 from openregistry.assets.core.constants import STATUS_CHANGES, ASSET_STATUSES
 
+from uuid import uuid4
+
 # AssetResourceTest
 
 
@@ -193,11 +195,13 @@ def asset_concierge_patch(self):
     self.assertEqual(response.json['data']['status'], 'verification')
 
     # Move status from verification to Active
+    relatedLot = uuid4().hex
     response = self.app.patch_json('/{}'.format(
-        asset['id']), {'data': {'status': 'active'}})
+        asset['id']), {'data': {'status': 'active', 'relatedLot': relatedLot}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'active')
+    self.assertEqual(response.json['data']['relatedLot'], relatedLot)
 
     # Move status from Active to Draft
     response = self.app.patch_json('/{}'.format(
@@ -223,6 +227,7 @@ def asset_concierge_patch(self):
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'pending')
+    self.assertNotIn('relatedLot', response.json['data'])
 
     # Move status from Pending to Deleted
     response = self.app.patch_json('/{}'.format(
