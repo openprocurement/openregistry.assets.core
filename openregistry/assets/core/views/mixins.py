@@ -40,6 +40,9 @@ class AssetResource(APIResource):
                permission='edit_asset')
     def patch(self):
         asset = self.context
+        if asset.status == 'active' and self.request.validated['data'].get('status', None) == 'pending':
+            self.request.validated['data']['relatedLot'] = None
+            self.request.validated['asset'].relatedLot = None
         apply_patch(self.request, src=self.request.validated['asset_src'])
         self.LOGGER.info(
             'Updated asset {}'.format(asset.id),

@@ -124,7 +124,7 @@ class BaseAsset(BaseResourceItem):
 
 class Asset(BaseAsset):
     status = StringType(choices=ASSET_STATUSES, default="draft")
-    relatedLot = MD5Type()
+    relatedLot = MD5Type(serialize_when_none=False)
 
     create_accreditation = 1
     edit_accreditation = 2
