@@ -24,7 +24,7 @@ create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'd
 edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
 
-Administrator_role = whitelist('status', 'mode')
+Administrator_role = whitelist('status', 'mode', 'relatedLot')
 concierge_role = (whitelist('status', 'relatedLot'))
 
 
@@ -128,3 +128,7 @@ class Asset(BaseAsset):
 
     create_accreditation = 1
     edit_accreditation = 2
+
+    def validate_relatedLot(self, data, lot):
+        if data['status'] == 'active' and not lot:
+            raise ValidationError(u'This field is required.')
