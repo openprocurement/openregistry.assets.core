@@ -32,7 +32,10 @@ def validate_patch_asset_data(request, error_handler, **kwargs):
     default_status = type(request.asset).fields['status'].default
     if data.get('status') == default_status and data.get('status') != request.context.status:
         raise_operation_error(request, error_handler, 'Can\'t switch asset to {} status'.format(default_status))
-    return validate_data(request, type(request.asset), True, data)
+
+
+def validate_data_by_model(request, error_handler, **kwargs):
+    return validate_data(request, type(request.asset), True, validate_json_data(request))
 
 
 def validate_asset_document_update_not_by_author_or_asset_owner(request, error_handler, **kwargs):
