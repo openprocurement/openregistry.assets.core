@@ -194,6 +194,13 @@ def asset_concierge_patch(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'verification')
 
+    # Move status from verification to Active withour relatedLot
+    response = self.app.patch_json('/{}'.format(
+        asset['id']), {'data': {'status': 'active'}}, status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['errors'][0]['description'][0], 'This field is required.')
+
     # Move status from verification to Active
     relatedLot = uuid4().hex
     response = self.app.patch_json('/{}'.format(
@@ -267,11 +274,13 @@ def asset_concierge_patch(self):
 
 
     # Move status from verification to active
+    relatedLot = uuid4().hex
     response = self.app.patch_json('/{}'.format(
-        asset['id']), {'data': {'status': 'active'}})
+        asset['id']), {'data': {'status': 'active', 'relatedLot': relatedLot}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'active')
+    self.assertEqual(response.json['data']['relatedLot'], relatedLot)
 
     # Move status from Active to Complete
     response = self.app.patch_json('/{}'.format(
@@ -395,7 +404,7 @@ def administrator_change_complete_status(self):
 
     response = self.app.patch_json(
         '/{}'.format(asset['id']),
-        {'data': {'status': 'active'}}
+        {'data': {'status': 'active', 'relatedLot': uuid4().hex}}
     )
     self.assertEqual(response.status, '200 OK')
 
@@ -413,7 +422,7 @@ def administrator_change_complete_status(self):
 
     response = self.app.patch_json(
         '/{}'.format(asset['id']),
-        {'data': {'status': 'active'}}
+        {'data': {'status': 'active', 'relatedLot': uuid4().hex}}
     )
     self.assertEqual(response.status, '200 OK')
 
@@ -460,21 +469,25 @@ ROLES = ['asset_owner', 'Administrator', 'concierge', 'convoy']
 STATUS_BLACKLIST = create_blacklist(STATUS_CHANGES, ASSET_STATUSES, ROLES)
 
 
-def check_patch_status_200(self, path, asset_status, headers=None):
+def check_patch_status_200(self, asset_id, asset_status, headers=None, extra_data={}):
+    patch_data = {'status': asset_status}
+    patch_data = patch_data.update(extra_data) or patch_data
     response = self.app.patch_json(
-        path,
-        params={'data': {'status': asset_status}},
+        '/{}'.format(asset_id),
+        params={'data': patch_data},
         headers=headers
     )
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['data']['status'], asset_status)
+    self.assertEqual(response.json['data']['status'], patch_data['status'])
+    for field, value in extra_data.items():
+        self.assertEqual(response.json['data'][field], value)
     return response
 
 
-def check_patch_status_403(self, path, asset_status, headers=None):
+def check_patch_status_403(self, asset_id, asset_status, headers=None):
     response = self.app.patch_json(
-        path,
+        '/{}'.format(asset_id),
         params={'data': {'status': asset_status}},
         headers=headers,
         status=403
@@ -496,27 +509,27 @@ def change_draft_asset(self):
 
     # Move from 'draft' to one of blacklist status
     for status in STATUS_BLACKLIST['draft']['concierge']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('convoy', ''))
 
     # Move from 'draft' to one of blacklist status
     for status in STATUS_BLACKLIST['draft']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('broker', ''))
 
     # Move from 'draft' to one of blacklist status
     for status in STATUS_BLACKLIST['draft']['asset_owner']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
+        check_patch_status_403(self, asset['id'], status, self.access_header)
 
     # Move from 'draft' to 'draft' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'draft', self.access_header)
+    check_patch_status_200(self, asset['id'], 'draft', self.access_header)
 
     # Move from 'draft' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending', self.access_header)
+    check_patch_status_200(self, asset['id'], 'pending', self.access_header)
 
     asset = self.create_resource()
 
@@ -525,13 +538,13 @@ def change_draft_asset(self):
 
     # Move from 'draft' to one of blacklist status
     for status in STATUS_BLACKLIST['draft']['Administrator']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
     # Move from 'draft' to 'draft' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'draft', self.access_header)
+    check_patch_status_200(self, asset['id'], 'draft', self.access_header)
 
     # Move from 'draft' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending', self.access_header)
+    check_patch_status_200(self, asset['id'], 'pending', self.access_header)
 
 
 def change_pending_asset(self):
@@ -546,20 +559,20 @@ def change_pending_asset(self):
 
     # Move from 'pending' to one of blacklist status
     for status in STATUS_BLACKLIST['pending']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('broker', ''))
 
     # Move from 'pending' to one of blacklist status
     for status in STATUS_BLACKLIST['pending']['asset_owner']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
+        check_patch_status_403(self, asset['id'], status, self.access_header)
 
     # Move from 'pending' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending', self.access_header)
+    check_patch_status_200(self, asset['id'], 'pending', self.access_header)
 
     # Move from 'pending' to 'deleted' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'deleted', self.access_header)
+    check_patch_status_200(self, asset['id'], 'deleted', self.access_header)
 
 
     asset = self.create_resource()
@@ -569,19 +582,19 @@ def change_pending_asset(self):
 
     # Move from 'pending' to one of blacklist status
     for status in STATUS_BLACKLIST['pending']['Administrator']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
     # Move from 'pending' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'deleted' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'deleted')
+    check_patch_status_200(self, asset['id'], 'deleted')
 
 
     self.app.authorization = ('Basic', ('broker', ''))
@@ -592,13 +605,13 @@ def change_pending_asset(self):
 
     # Move from 'pending' to one of blacklist status
     for status in STATUS_BLACKLIST['pending']['concierge']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
     # Move from 'pending' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
 
 def change_verification_asset(self):
@@ -612,34 +625,34 @@ def change_verification_asset(self):
 
     # Move from 'verification' to one of blacklist status
     for status in STATUS_BLACKLIST['verification']['asset_owner']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
+        check_patch_status_403(self, asset['id'], status, self.access_header)
 
 
     self.app.authorization = ('Basic', ('convoy', ''))
 
     # Move from 'verification' to one of blacklist status
     for status in STATUS_BLACKLIST['verification']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('concierge', ''))
 
     # Move from 'verification' to one of blacklist status
     for status in STATUS_BLACKLIST['verification']['concierge']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     # Move from 'verification' to 'verification status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification' to 'active' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+    check_patch_status_200(self, asset['id'], 'active', extra_data={'relatedLot': uuid4().hex})
 
 
     self.app.authorization = ('Basic', ('broker', ''))
@@ -650,19 +663,19 @@ def change_verification_asset(self):
 
     # Move from 'verification' to one of blacklist status
     for status in STATUS_BLACKLIST['verification']['Administrator']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
     # Move from 'verification' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification' to 'active' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+    check_patch_status_200(self, asset['id'], 'active', extra_data={'relatedLot': uuid4().hex})
 
 
 def change_active_asset(self):
@@ -676,36 +689,36 @@ def change_active_asset(self):
 
     # Move from 'active' to one of blacklist status
     for status in STATUS_BLACKLIST['active']['asset_owner']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
+        check_patch_status_403(self, asset['id'], status, self.access_header)
 
 
     self.app.authorization = ('Basic', ('convoy', ''))
 
     # Move from 'active' to one of blacklist status
     for status in STATUS_BLACKLIST['active']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('concierge', ''))
 
     # Move from 'active' to one of blacklist status
     for status in STATUS_BLACKLIST['active']['concierge']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
     # Move from 'active' to 'active status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+    check_patch_status_200(self, asset['id'], 'active', extra_data={'relatedLot': uuid4().hex})
 
     # Move from 'active' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification' to 'active' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+    check_patch_status_200(self, asset['id'], 'active', extra_data={'relatedLot': uuid4().hex})
 
     # Move from 'active' to 'complete' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'complete')
+    check_patch_status_200(self, asset['id'], 'complete')
 
 
     self.app.authorization = ('Basic', ('broker', ''))
@@ -716,22 +729,22 @@ def change_active_asset(self):
 
     # Move from 'active' to one of blacklist status
     for status in STATUS_BLACKLIST['active']['Administrator']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
     # Move from 'active' to 'active status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+    check_patch_status_200(self, asset['id'], 'active', extra_data={'relatedLot': uuid4().hex})
 
     # Move from 'active' to 'pending' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'pending')
+    check_patch_status_200(self, asset['id'], 'pending')
 
     # Move from 'pending' to 'verification' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'verification')
+    check_patch_status_200(self, asset['id'], 'verification')
 
     # Move from 'verification' to 'active' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'active')
+    check_patch_status_200(self, asset['id'], 'active', extra_data={'relatedLot': uuid4().hex})
 
     # Move from 'active' to 'complete' status
-    check_patch_status_200(self, '/{}'.format(asset['id']), 'complete')
+    check_patch_status_200(self, asset['id'], 'complete')
 
 
 def change_deleted_asset(self):
@@ -744,28 +757,28 @@ def change_deleted_asset(self):
 
     # Move from 'deleted' to one of blacklist status
     for status in STATUS_BLACKLIST['deleted']['asset_owner']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
+        check_patch_status_403(self, asset['id'], status, self.access_header)
 
 
     self.app.authorization = ('Basic', ('convoy', ''))
 
     # Move from 'deleted' to one of blacklist status
     for status in STATUS_BLACKLIST['deleted']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('concierge', ''))
 
     # Move from 'deleted' to one of blacklist status
     for status in STATUS_BLACKLIST['deleted']['concierge']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('administrator', ''))
 
     # Move from 'deleted' to one of blacklist status
     for status in STATUS_BLACKLIST['deleted']['Administrator']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
 def change_complete_asset(self):
@@ -778,28 +791,28 @@ def change_complete_asset(self):
 
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['asset_owner']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status, self.access_header)
+        check_patch_status_403(self, asset['id'], status, self.access_header)
 
 
     self.app.authorization = ('Basic', ('convoy', ''))
 
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['convoy']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('concierge', ''))
 
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['concierge']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
     self.app.authorization = ('Basic', ('administrator', ''))
 
     # Move from 'complete' to one of blacklist status
     for status in STATUS_BLACKLIST['complete']['Administrator']:
-        check_patch_status_403(self, '/{}'.format(asset['id']), status)
+        check_patch_status_403(self, asset['id'], status)
 
 
 def patch_decimal_quantity(self):
