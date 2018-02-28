@@ -6,14 +6,14 @@ from schematics_flexible.schematics_flexible import FlexibleModelType
 from pyramid.security import Allow
 from zope.interface import implementer
 
-from openregistry.api.models.ocds import (
+from openprocurement.api.registry_models.ocds import (
     Organization, Document, Location, ItemClassification,
     Classification, Unit, Value, Address, DecimalType
 )
-from openregistry.api.models.schematics_extender import IsoDateTimeType, ListType
-from openregistry.api.models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
-from openregistry.api.models.common import BaseResourceItem
-from openregistry.api.interfaces import IORContent
+from openprocurement.api.registry_models.schematics_extender import IsoDateTimeType, ListType
+from openprocurement.api.registry_models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
+from openprocurement.api.registry_models.common import BaseResourceItem
+from openprocurement.api.interfaces import IORContent
 
 from openprocurement.schemas.dgf.schemas_store import SchemaStore
 

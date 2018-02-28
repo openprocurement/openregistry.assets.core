@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openregistry.api.tests.base import create_blacklist
+from openprocurement.api.tests.base import create_blacklist
 from openregistry.assets.core.constants import STATUS_CHANGES, ASSET_STATUSES
 
 from uuid import uuid4

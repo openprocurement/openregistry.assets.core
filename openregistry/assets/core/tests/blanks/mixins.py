@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openregistry.api.tests.base import snitch
+from openprocurement.api.tests.base import snitch
 
 
 from .asset import (

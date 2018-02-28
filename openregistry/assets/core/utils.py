@@ -9,7 +9,7 @@ from functools import partial
 from time import sleep
 
 
-from openregistry.api.utils import (
+from openprocurement.api.utils import (
     error_handler,
     update_logging_context,
     set_modetest_titles,
