@@ -3,8 +3,8 @@ from openregistry.assets.core.utils import (
     extract_asset, isAsset, register_assetType,
     asset_from_data, SubscribersPicker
 )
-from openregistry.api.interfaces import IContentConfigurator
-from openregistry.api.utils import load_plugins
+from openprocurement.api.interfaces import IContentConfigurator
+from openprocurement.api.utils import load_plugins
 from openregistry.assets.core.models import IAsset
 from openregistry.assets.core.adapters import AssetConfigurator
 

@@ -2,7 +2,7 @@
 import os
 import unittest
 from openregistry.assets.core.tests.base import BaseAssetWebTest
-from openregistry.api.tests.blanks.mixins import CoreResourceTestMixin
+from openprocurement.api.tests.blanks.mixins import CoreResourceTestMixin
 
 
 class AssetResourceTest(BaseAssetWebTest, CoreResourceTestMixin):

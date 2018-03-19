@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from openregistry.api.validation import (
+from openprocurement.api.validation import (
     validate_change_status,
     validate_file_upload,
     validate_document_data,
     validate_patch_document_data,
 )
-from openregistry.api.utils import (
+from openprocurement.api.utils import (
     get_file,
     update_file_content_type,
     json_view,
