@@ -42,3 +42,5 @@ STATUS_CHANGES = {
         "next_status": {}
     }
 }
+
+ALLOWED_SCHEMA_PROPERIES_CODES = ['04']

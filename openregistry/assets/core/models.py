@@ -8,7 +8,7 @@ from zope.interface import implementer
 
 from openprocurement.api.registry_models.ocds import (
     Organization, Document, Location, ItemClassification,
-    Classification, Unit, Value, Address, DecimalType
+    Classification, Unit, Value, Address, DecimalType, Item
 )
 from openprocurement.api.registry_models.schematics_extender import IsoDateTimeType, ListType
 from openprocurement.api.registry_models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
@@ -17,7 +17,7 @@ from openprocurement.api.interfaces import IORContent
 
 from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
-from .constants import ASSET_STATUSES
+from .constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES
 
 
 create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + schematics_embedded_role)
@@ -36,6 +36,17 @@ def get_asset(model):
     while not IAsset.providedBy(model):
         model = model.__parent__
     return model
+
+
+class Item(Item):
+    def validate_schema_properties(self, data, new_schema_properties):
+        """ Raise validation error if code in schema_properties mismatch
+            with classification id """
+        if new_schema_properties:
+            if not data['classification']['id'].startswith(new_schema_properties['code']):
+                raise ValidationError("classification id mismatch with schema_properties code")
+            elif not any([new_schema_properties['code'].startswith(prefix) for prefix in ALLOWED_SCHEMA_PROPERIES_CODES]):
+                raise ValidationError("schema_properties code must be one of {}.".format(repr(ALLOWED_SCHEMA_PROPERIES_CODES)))
 
 
 @implementer(IAsset)
@@ -96,8 +107,11 @@ class BaseAsset(BaseResourceItem):
     def validate_schema_properties(self, data, new_schema_properties):
         """ Raise validation error if code in schema_properties mismatch
             with classification id """
-        if new_schema_properties and not data['classification']['id'].startswith(new_schema_properties['code']):
-            raise ValidationError("classification id mismatch with schema_properties code")
+        if new_schema_properties:
+            if not data['classification']['id'].startswith(new_schema_properties['code']):
+                raise ValidationError("classification id mismatch with schema_properties code")
+            elif not any([new_schema_properties['code'].startswith(prefix) for prefix in ALLOWED_SCHEMA_PROPERIES_CODES]):
+                raise ValidationError("schema_properties code must be one of {}.".format(repr(ALLOWED_SCHEMA_PROPERIES_CODES)))
 
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
