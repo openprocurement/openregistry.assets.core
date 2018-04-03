@@ -38,15 +38,19 @@ def get_asset(model):
     return model
 
 
+def validate_schema_properties(data, new_schema_properties):
+    """ Raise validation error if code in schema_properties mismatch
+        with classification id """
+    if new_schema_properties:
+        if not data['classification']['id'].startswith(new_schema_properties['code']):
+            raise ValidationError("classification id mismatch with schema_properties code")
+        elif not any([new_schema_properties['code'].startswith(prefix) for prefix in ALLOWED_SCHEMA_PROPERIES_CODES]):
+            raise ValidationError("schema_properties code must be one of {}.".format(repr(ALLOWED_SCHEMA_PROPERIES_CODES)))
+
+
 class Item(Item):
     def validate_schema_properties(self, data, new_schema_properties):
-        """ Raise validation error if code in schema_properties mismatch
-            with classification id """
-        if new_schema_properties:
-            if not data['classification']['id'].startswith(new_schema_properties['code']):
-                raise ValidationError("classification id mismatch with schema_properties code")
-            elif not any([new_schema_properties['code'].startswith(prefix) for prefix in ALLOWED_SCHEMA_PROPERIES_CODES]):
-                raise ValidationError("schema_properties code must be one of {}.".format(repr(ALLOWED_SCHEMA_PROPERIES_CODES)))
+        validate_schema_properties(data, new_schema_properties)
 
 
 @implementer(IAsset)
@@ -105,13 +109,7 @@ class BaseAsset(BaseResourceItem):
     edit_accreditation = 2
 
     def validate_schema_properties(self, data, new_schema_properties):
-        """ Raise validation error if code in schema_properties mismatch
-            with classification id """
-        if new_schema_properties:
-            if not data['classification']['id'].startswith(new_schema_properties['code']):
-                raise ValidationError("classification id mismatch with schema_properties code")
-            elif not any([new_schema_properties['code'].startswith(prefix) for prefix in ALLOWED_SCHEMA_PROPERIES_CODES]):
-                raise ValidationError("schema_properties code must be one of {}.".format(repr(ALLOWED_SCHEMA_PROPERIES_CODES)))
+        validate_schema_properties(data, new_schema_properties)
 
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
