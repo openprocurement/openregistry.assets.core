@@ -7,8 +7,8 @@ from pyramid.security import Allow
 from zope.interface import implementer
 
 from openprocurement.api.models.registry_models.ocds import (
-    Organization, Document, Location, ItemClassification,
-    Classification, Unit, Value, Address, DecimalType, Item
+    Organization, baseDocument as Document, Location, ItemClassification,
+    Classification, Unit, Value, Address, DecimalType, baseItem as Item
 )
 from openprocurement.api.models.schematics_extender import IsoDateTimeType, ListType
 from openprocurement.api.models.registry_models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role

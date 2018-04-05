@@ -176,3 +176,4 @@ def save_asset(request):
             LOGGER.info('Saved asset {}: dateModified {} -> {}'.format(asset.id, old_dateModified and old_dateModified.isoformat(), asset.dateModified.isoformat()),
                         extra=context_unpack(request, {'MESSAGE_ID': 'save_asset'}, {'RESULT': asset.rev}))
             return True
+
