@@ -39,6 +39,8 @@ def factory(request):
     request.validated['resource_type'] = "asset"
     if request.method != 'GET':
         request.validated['asset_src'] = asset.serialize('plain')
+    if request.matchdict.get('item_id'):
+        return get_item(asset, 'item', request)
     if request.matchdict.get('document_id'):
         return get_item(asset, 'document', request)
     request.validated['id'] = request.matchdict['asset_id']
