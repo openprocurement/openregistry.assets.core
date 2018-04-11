@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openprocurement.api.tests.base import snitch
-
-
+from openprocurement.api.tests.blanks.mixins import ResourceTestMixin
 from .asset import (
     # AssetResourceTest
     patch_asset,
