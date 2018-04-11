@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from openprocurement.api.constants import DOCUMENT_TYPES  # noqa forwarded import
 
 from openprocurement.api.constants import DOCUMENT_TYPES
 
