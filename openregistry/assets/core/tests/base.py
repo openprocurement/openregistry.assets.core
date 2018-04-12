@@ -3,7 +3,7 @@ from datetime import datetime
 
 from openprocurement.api.tests.base import (
     BaseResourceWebTest,
-    snitch,
+    snitch,  # noqa forwarded import
     DumpsTestAppwebtest,  # noqa forwarded import
     PrefixedRequestClass  # noqa forwarded import
 )
