@@ -7,10 +7,25 @@ from pyramid.security import Allow
 from zope.interface import implementer
 
 from openprocurement.api.models.registry_models.ocds import (
-    Organization, Document, Location, ItemClassification,
-    Classification, Unit, Value, Address, DecimalType, Item,
-    Debt  # noqa forwarded import
+    Organization,
+    Document,
+    Location,
+    ItemClassification,
+    Classification,
+    Unit,
+    Value,
+    Address,
+    DecimalType,
+    Item,
+    Debt, # noqa forwarded import
+    LokiDocument, # noqa forwarded import
+    LokiItem, # noqa forwarded import
+    AssetHolder, # noqa forwarded import
+    AssetCustodian, # noqa forwarded import
+    Decision # noqa forwarded import
+
 )
+from openprocurement.api.models.models import Period # noqa forwarded import
 from openprocurement.api.models.schematics_extender import IsoDateTimeType, ListType
 from openprocurement.api.models.registry_models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
 from openprocurement.api.models.registry_models.common import BaseResourceItem
