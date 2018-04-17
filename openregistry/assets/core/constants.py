@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from openprocurement.api.constants import DOCUMENT_TYPES  # noqa forwarded import
 
+
 DEFAULT_ASSET_TYPE = 'basic'
 
 ASSET_STATUSES = ['draft', 'pending', "verification",
@@ -45,3 +46,4 @@ STATUS_CHANGES = {
 }
 
 ALLOWED_SCHEMA_PROPERIES_CODES = ['04']
+
