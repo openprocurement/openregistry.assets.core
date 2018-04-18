@@ -13,7 +13,8 @@ from openprocurement.api.tests.blanks.json_data import (
     test_asset_basic_data,  # noqa forwarded import
     test_asset_basic_data_with_schema,  # noqa forwarded import
     test_asset_claimrights_data,  # noqa forwarded import
-    test_asset_compound_data  # noqa forwarded import
+    test_asset_compound_data,  # noqa forwarded import
+    test_asset_compound_data_341   # noqa forwarded import
 )
 
 
