@@ -22,7 +22,8 @@ from openprocurement.api.models.registry_models.ocds import (
     LokiItem, # noqa forwarded import
     AssetHolder, # noqa forwarded import
     AssetCustodian, # noqa forwarded import
-    Decision # noqa forwarded import
+    Decision, # noqa forwarded import
+    LOKI_DOCUMENT_TYPES # noqa forwared import
 
 )
 from openprocurement.api.models.models import Period # noqa forwarded import
