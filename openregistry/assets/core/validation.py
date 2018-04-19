@@ -5,6 +5,7 @@ from openprocurement.api.validation import (
     validate_file_upload, # noqa forwarder import
     validate_document_data, # noqa forwarded import
     validate_patch_document_data, # noqa forwarded import
+    validate_change_status # noqa forwarder import
 )
 from openprocurement.api.utils import update_logging_context, raise_operation_error
 
