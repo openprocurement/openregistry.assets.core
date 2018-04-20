@@ -5,7 +5,8 @@ from openprocurement.api.tests.base import (
     BaseResourceWebTest,
     snitch,  # noqa forwarded import
     DumpsTestAppwebtest,  # noqa forwarded import
-    PrefixedRequestClass  # noqa forwarded import
+    PrefixedRequestClass,  # noqa forwarded import
+    create_blacklist, # noqa forwarded import
 )
 from openprocurement.api.tests.blanks.json_data import (
     test_document_data,  # noqa forwarded import

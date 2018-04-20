@@ -817,7 +817,6 @@ def change_complete_asset(self):
 
 def patch_decimal_quantity(self):
     """Testing different decimal quantity (decimal_numbers) at the root of assets."""
-
     asset = self.create_resource()
     for quantity in [3, '3', 7.658, '7.658', 2.3355, '2.3355']:
         response = self.app.patch_json('/{}'.format(asset['id']),
@@ -832,7 +831,7 @@ def patch_decimal_quantity(self):
 
 def patch_decimal_item_quantity(self):
     """ Testing different decimal quantity (decimal_numbers) at the root and items of assets."""
-
+    precision = self.precision if hasattr(self, 'precision') else 3
     asset = self.create_resource()
     for quantity in [3, '3', 7.658, '7.658', 2.3355, '2.3355']:
         response = self.app.patch_json('/{}'.format(asset['id']),
@@ -842,6 +841,6 @@ def patch_decimal_item_quantity(self):
         self.assertEqual(response.content_type, 'application/json')
         for item in response.json['data']['items']:
             self.assertNotIsInstance(item['quantity'], basestring)
-        rounded_quantity = round(float(quantity), 3)
+        rounded_quantity = round(float(quantity), precision)
         for item in response.json['data']['items']:
             self.assertEqual(item['quantity'], rounded_quantity)
