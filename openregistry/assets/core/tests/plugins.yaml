@@ -1,0 +1,4 @@
+---
+api:
+  plugins:
+    assets.core:
