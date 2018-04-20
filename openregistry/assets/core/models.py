@@ -103,6 +103,9 @@ class BaseAsset(BaseResourceItem):
             'default': schematics_default_role,
         }
 
+    status = StringType(choices=ASSET_STATUSES, default="draft")
+    relatedLot = MD5Type(serialize_when_none=False)
+
     assetID = StringType()  # AssetID should always be the same as the OCID. It is included to make the flattened data structure more convenient.
     date = IsoDateTimeType()
     title = StringType(required=True)
@@ -111,22 +114,11 @@ class BaseAsset(BaseResourceItem):
     description = StringType()
     description_en = StringType()
     description_ru = StringType()
-    value = ModelType(Value)
     assetCustodian = ModelType(Organization, required=True)
     documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the asset.
-    classification = ModelType(ItemClassification, required=True)
-    additionalClassifications = ListType(ModelType(Classification), default=list())
-    unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
-    quantity = DecimalType()  # The number of units required
-    address = ModelType(Address)
-    location = ModelType(Location)
-    schema_properties = FlexibleModelType(SchemaStore())
 
     create_accreditation = 1
     edit_accreditation = 2
-
-    def validate_schema_properties(self, data, new_schema_properties):
-        validate_schema_properties(data, new_schema_properties)
 
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
@@ -150,14 +142,20 @@ class BaseAsset(BaseResourceItem):
         ]
         return acl
 
-
-class Asset(BaseAsset):
-    status = StringType(choices=ASSET_STATUSES, default="draft")
-    relatedLot = MD5Type(serialize_when_none=False)
-
-    create_accreditation = 1
-    edit_accreditation = 2
-
     def validate_relatedLot(self, data, lot):
         if data['status'] == 'active' and not lot:
             raise ValidationError(u'This field is required.')
+
+
+class Asset(BaseAsset):
+    value = ModelType(Value)
+    classification = ModelType(ItemClassification, required=True)
+    additionalClassifications = ListType(ModelType(Classification), default=list())
+    unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
+    quantity = DecimalType()  # The number of units required
+    address = ModelType(Address)
+    location = ModelType(Location)
+    schema_properties = FlexibleModelType(SchemaStore())
+
+    def validate_schema_properties(self, data, new_schema_properties):
+        validate_schema_properties(data, new_schema_properties)
