@@ -4,12 +4,12 @@ from openregistry.assets.core.utils import (
     asset_from_data, SubscribersPicker
 )
 from openprocurement.api.interfaces import IContentConfigurator
-from openprocurement.api.utils import load_plugins
+from openprocurement.api.utils import configure_plugins
 from openregistry.assets.core.models import IAsset
 from openregistry.assets.core.adapters import AssetConfigurator
 
 
-def includeme(config):
+def includeme(config, plugin_config):
     from openregistry.assets.core.design import add_design
     add_design()
     config.add_request_method(extract_asset, 'asset', reify=True)
@@ -27,6 +27,10 @@ def includeme(config):
                                     IContentConfigurator)
 
     # search for plugins
-    settings = config.get_settings()
-    plugins = settings.get('plugins') and settings['plugins'].split(',')
-    load_plugins(config, group='openregistry.assets.core.plugins', plugins=plugins)
+    if plugin_config and plugin_config.get('plugins'):
+        for name in plugin_config['plugins']:
+            package_config = plugin_config['plugins'][name]
+            configure_plugins(
+                config, {name: package_config},
+                'openregistry.assets.core.plugins', name
+            )
