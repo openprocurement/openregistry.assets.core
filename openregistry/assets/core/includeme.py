@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import logging
 from pyramid.interfaces import IRequest
 from openregistry.assets.core.utils import (
     extract_asset, isAsset, register_assetType,
@@ -7,6 +9,8 @@ from openprocurement.api.interfaces import IContentConfigurator
 from openprocurement.api.utils import configure_plugins
 from openregistry.assets.core.models import IAsset
 from openregistry.assets.core.adapters import AssetConfigurator
+
+LOGGER = logging.getLogger(__name__)
 
 
 def includeme(config, plugin_config):
@@ -25,6 +29,9 @@ def includeme(config, plugin_config):
     config.scan("openregistry.assets.core.subscribers")
     config.registry.registerAdapter(AssetConfigurator, (IAsset, IRequest),
                                     IContentConfigurator)
+
+
+    LOGGER.info("Included openprocurement.assets.core plugin", extra={'MESSAGE_ID': 'included_plugin'})
 
     # search for plugins
     if plugin_config and plugin_config.get('plugins'):
