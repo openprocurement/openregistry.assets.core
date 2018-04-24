@@ -3,6 +3,7 @@ from openregistry.assets.core.events import AssetInitializeEvent
 from openregistry.assets.core.design import (
     FIELDS, VIEW_MAP, CHANGES_VIEW_MAP, FEED
 )
+from openregistry.assets.core.interfaces import IAssetManager
 
 from openprocurement.api.utils import (
     get_now, generate_id, json_view, set_ownership,
@@ -37,6 +38,11 @@ class AssetsResource(APIResourceListing):
     @json_view(content_type="application/json", permission='create_asset', validators=(validate_asset_data,))
     def post(self):
         """This API request is targeted to creating new Asset."""
+        self.request.registry.getAdapter(
+            self.request.validated['asset'],
+            IAssetManager
+        ).create_asset(self.request)
+
         asset_id = generate_id()
         asset = self.request.validated['asset']
         asset.id = asset_id
