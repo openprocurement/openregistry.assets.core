@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.constants import DOCUMENT_TYPES  # noqa forwarded import
-
+from openprocurement.api.constants import (
+    DOCUMENT_TYPES,  # noqa forwarded import
+    LOKI_DOCUMENT_TYPES  # noqa forwared import
+)
 
 DEFAULT_ASSET_TYPE = 'basic'
 

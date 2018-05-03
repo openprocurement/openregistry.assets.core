@@ -29,7 +29,6 @@ from openprocurement.api.models.registry_models import (
     AssetHolder,  # noqa forwarded import
     AssetCustodian,  # noqa forwarded import
     Decision,  # noqa forwarded import
-    LOKI_DOCUMENT_TYPES  # noqa forwared import
 )
 from openprocurement.api.models.roles import (
     schematics_embedded_role, schematics_default_role, plain_role, listing_role
