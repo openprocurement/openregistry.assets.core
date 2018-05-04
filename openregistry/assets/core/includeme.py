@@ -5,15 +5,15 @@ from openregistry.assets.core.utils import (
     extract_asset, isAsset, register_assetType,
     asset_from_data, SubscribersPicker
 )
-from openprocurement.api.interfaces import IContentConfigurator
-from openprocurement.api.utils import configure_plugins
 from openregistry.assets.core.models import IAsset
+from openprocurement.api.app import get_evenly_plugins
+from openprocurement.api.interfaces import IContentConfigurator
 from openregistry.assets.core.adapters import AssetConfigurator
 
 LOGGER = logging.getLogger(__name__)
 
 
-def includeme(config, plugin_config):
+def includeme(config, plugin_map):
     from openregistry.assets.core.design import add_design
     add_design()
     config.add_request_method(extract_asset, 'asset', reify=True)
@@ -34,10 +34,4 @@ def includeme(config, plugin_config):
     LOGGER.info("Included openprocurement.assets.core plugin", extra={'MESSAGE_ID': 'included_plugin'})
 
     # search for plugins
-    if plugin_config and plugin_config.get('plugins'):
-        for name in plugin_config['plugins']:
-            package_config = plugin_config['plugins'][name]
-            configure_plugins(
-                config, {name: package_config},
-                'openregistry.assets.core.plugins', name
-            )
+    get_evenly_plugins(config, plugin_map['plugins'], 'openprocurement.assets.core.plugins')
