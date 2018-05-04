@@ -24,3 +24,6 @@ class AssetManagerAdapter(object):
 
     def create_asset(self, request):
         pass
+
+    def change_asset(self, request):
+        pass
