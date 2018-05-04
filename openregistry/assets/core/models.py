@@ -1,36 +1,43 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist
-from schematics.types.compound import ModelType
 from schematics.types import StringType, MD5Type, ValidationError
-from schematics_flexible.schematics_flexible import FlexibleModelType
+from schematics.types.compound import ModelType
 from pyramid.security import Allow
 from zope.interface import implementer
 
-from openprocurement.api.models.registry_models.ocds import (
+from openprocurement.api.models.common import (
+    BaseResourceItem,
+    Classification,
+    Address,
+    Location,
+    Period  # noqa forwarded import
+)
+from openprocurement.api.interfaces import IORContent
+from openprocurement.api.models.ocds import (
     Organization,
     Document,
-    Location,
     ItemClassification,
-    Classification,
     Unit,
     Value,
-    Address,
     DecimalType,
     Item,
-    Debt, # noqa forwarded import
-    LokiDocument, # noqa forwarded import
-    LokiItem, # noqa forwarded import
-    AssetHolder, # noqa forwarded import
-    AssetCustodian, # noqa forwarded import
-    Decision, # noqa forwarded import
+    Debt,  # noqa forwarded import
 )
-from openprocurement.api.models.models import Period # noqa forwarded import
+from openprocurement.api.models.registry_models import (
+    LokiDocument,  # noqa forwarded import
+    LokiItem,  # noqa forwarded import
+    AssetHolder,  # noqa forwarded import
+    AssetCustodian,  # noqa forwarded import
+    Decision,  # noqa forwarded import
+)
+from openprocurement.api.models.roles import (
+    schematics_embedded_role, schematics_default_role, plain_role, listing_role
+)
 from openprocurement.api.models.schematics_extender import IsoDateTimeType, ListType
-from openprocurement.api.models.registry_models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
-from openprocurement.api.models.registry_models.common import BaseResourceItem
-from openprocurement.api.interfaces import IORContent
 
 from openprocurement.schemas.dgf.schemas_store import SchemaStore
+
+from schematics_flexible.schematics_flexible import FlexibleModelType
 
 from .constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES
 
