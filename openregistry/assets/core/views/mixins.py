@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from openprocurement.api.validation import (
-    validate_change_status,
     validate_file_upload,
     validate_document_data,
     validate_patch_document_data,
@@ -14,43 +13,12 @@ from openprocurement.api.utils import (
 )
 
 from openregistry.assets.core.validation import (
-    validate_patch_asset_data,
     validate_document_operation_in_not_allowed_asset_status,
     validate_asset_document_update_not_by_author_or_asset_owner,
-    validate_data_by_model
 )
 from openregistry.assets.core.utils import (
     save_asset, apply_patch,
 )
-
-patch_asset_validators = (
-    validate_patch_asset_data,
-    validate_change_status,
-    validate_data_by_model
-)
-
-
-class AssetResource(APIResource):
-
-    @json_view(permission='view_asset')
-    def get(self):
-        asset_data = self.context.serialize(self.context.status)
-        return {'data': asset_data}
-
-    @json_view(content_type="application/json",
-               validators=patch_asset_validators,
-               permission='edit_asset')
-    def patch(self):
-        asset = self.context
-        if asset.status == 'active' and self.request.validated['data'].get('status') == 'pending':
-            self.request.validated['data']['relatedLot'] = None
-            self.request.validated['asset'].relatedLot = None
-        apply_patch(self.request, src=self.request.validated['asset_src'])
-        self.LOGGER.info(
-            'Updated asset {}'.format(asset.id),
-            extra=context_unpack(self.request, {'MESSAGE_ID': 'asset_patch'})
-        )
-        return {'data': asset.serialize(asset.status)}
 
 
 class AssetDocumentResource(APIResource):

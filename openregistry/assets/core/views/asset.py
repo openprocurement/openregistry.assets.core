@@ -1,21 +1,35 @@
 # -*- coding: utf-8 -*-
+from openprocurement.api.validation import (
+    validate_change_status,
+)
+
 from openregistry.assets.core.events import AssetInitializeEvent
 from openregistry.assets.core.design import (
     FIELDS, VIEW_MAP, CHANGES_VIEW_MAP, FEED
 )
-from openregistry.assets.core.interfaces import IAssetManager
-
 from openprocurement.api.utils import (
     get_now, generate_id, json_view, set_ownership,
-    context_unpack, APIResourceListing
-)
-
-from openregistry.assets.core.utils import (
-    save_asset, asset_serialize, opassetsresource, generate_asset_id
+    context_unpack, APIResourceListing, APIResource
 )
 
 from openregistry.assets.core.validation import (
     validate_asset_data,
+    validate_patch_asset_data,
+    validate_data_by_model
+)
+from openregistry.assets.core.utils import (
+    save_asset,
+    apply_patch,
+    opassetsresource,
+    asset_serialize,
+    generate_asset_id
+)
+from openregistry.assets.core.interfaces import IAssetManager
+
+patch_asset_validators = (
+    validate_patch_asset_data,
+    validate_change_status,
+    validate_data_by_model
 )
 
 
@@ -59,8 +73,39 @@ class AssetsResource(APIResourceListing):
                              extra=context_unpack(self.request, {'MESSAGE_ID': 'asset_create'}, {'asset_id': asset_id, 'assetID': asset.assetID}))
             self.request.response.status = 201
             self.request.response.headers[
-                'Location'] = self.request.route_url('{}:Asset'.format(asset.assetType), asset_id=asset_id)
+                'Location'] = self.request.route_url('Asset', asset_id=asset_id)
             return {
                 'data': asset.serialize(asset.status),
                 'access': acc
             }
+
+
+@opassetsresource(name='Asset',
+                  path='/assets/{asset_id}',
+                  description="Open Contracting compatible data exchange format.")
+class AssetResource(APIResource):
+
+    @json_view(permission='view_asset')
+    def get(self):
+        asset_data = self.context.serialize(self.context.status)
+        return {'data': asset_data}
+
+    @json_view(content_type="application/json",
+               validators=patch_asset_validators,
+               permission='edit_asset')
+    def patch(self):
+        self.request.registry.getAdapter(
+            self.context,
+            IAssetManager
+        ).change_asset(self.request)
+        asset = self.context
+        if asset.status == 'active' and self.request.validated['data'].get('status') == 'pending':
+            self.request.validated['data']['relatedLot'] = None
+            self.request.validated['asset'].relatedLot = None
+        apply_patch(self.request, src=self.request.validated['asset_src'])
+        self.LOGGER.info(
+            'Updated asset {}'.format(asset.id),
+            extra=context_unpack(self.request, {'MESSAGE_ID': 'asset_patch'})
+        )
+        return {'data': asset.serialize(asset.status)}
+
