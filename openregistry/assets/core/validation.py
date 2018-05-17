@@ -22,7 +22,7 @@ def validate_asset_data(request, error_handler, **kwargs):
         request.errors.status = 403
         raise error_handler(request)
 
-    data = validate_data(request, model, data=data)
+    data = validate_data(request, model, "asset", data=data)
     if data and data.get('mode', None) is None and request.check_accreditation('t'):
         request.errors.add('body', 'mode', 'Broker Accreditation level does not permit asset creation')
         request.errors.status = 403
@@ -42,7 +42,7 @@ def validate_patch_asset_data(request, error_handler, **kwargs):
 
 
 def validate_data_by_model(request, error_handler, **kwargs):
-    return validate_data(request, type(request.asset), True, validate_json_data(request))
+    return validate_data(request, type(request.asset), data=validate_json_data(request))
 
 
 def validate_asset_document_update_not_by_author_or_asset_owner(request, error_handler, **kwargs):
