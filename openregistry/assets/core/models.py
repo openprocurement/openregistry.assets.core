@@ -110,6 +110,7 @@ class BaseAsset(BaseResourceItem):
 
     status = StringType(choices=ASSET_STATUSES, default="draft")
     relatedLot = MD5Type(serialize_when_none=False)
+    _internal_type = None
 
     assetID = StringType()  # AssetID should always be the same as the OCID. It is included to make the flattened data structure more convenient.
     date = IsoDateTimeType()
