@@ -125,6 +125,10 @@ class BaseAsset(BaseResourceItem):
     create_accreditation = 1
     edit_accreditation = 2
 
+    def __init__(self, *args, **kwargs):
+        super(BaseAsset, self).__init__(*args, **kwargs)
+        self.doc_type = "Asset"
+
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
         return roles
