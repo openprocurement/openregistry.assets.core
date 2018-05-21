@@ -91,8 +91,18 @@ def extract_asset_adapter(request, asset_id):
     return request.asset_from_data(doc)
 
 
+def get_asset_types(registry, internal_types):
+    asset_types = [
+        at for at, it in registry.asset_type_configurator.items() if it in internal_types
+    ]
+    return asset_types
+
+
 def asset_from_data(request, data, raise_error=True, create=True):
-    assetType = data.get('assetType', DEFAULT_ASSET_TYPE)
+    assetType = data.get('assetType')
+    if not assetType:
+        asset_types = get_asset_types(request.registry, (DEFAULT_ASSET_TYPE,))
+        assetType = asset_types[0] if asset_types else DEFAULT_ASSET_TYPE
     model = request.registry.assetTypes.get(assetType)
     if model is None and raise_error:
         request.errors.add('body', 'assetType', 'Not implemented')
@@ -126,18 +136,22 @@ class isAsset(object):
 
     def __call__(self, context, request):
         if request.asset is not None:
-            return getattr(request.asset, 'assetType', None) == self.val
+            asset_type = getattr(request.asset, 'assetType', None)
+            return request.registry.asset_type_configurator.get(asset_type) == self.val
         return False
 
 
-def register_assetType(config, model):
+def register_assetType(config, model, asset_type):
     """Register a assetType.
     :param config:
         The pyramid configuration object that will be populated.
     :param model:
         The asset model class
+    :param asset_type
+        Asset type associated with internal_type
     """
-    config.registry.assetTypes[model.assetType.default] = model
+    config.registry.assetTypes[asset_type] = model
+    config.registry.asset_type_configurator[asset_type] = model._internal_type
 
 
 class SubscribersPicker(isAsset):
@@ -145,7 +159,8 @@ class SubscribersPicker(isAsset):
 
     def __call__(self, event):
         if event.asset is not None:
-            return getattr(event.asset, 'assetType', None) == self.val
+            asset_type = getattr(event.asset, 'assetType', None)
+            return event.asset._internal_type == self.val
         return False
 
 

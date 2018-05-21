@@ -20,8 +20,8 @@ def includeme(config, plugin_map):
 
     # assetType plugins support
     config.registry.assetTypes = {}
-    config.add_route_predicate('assetType', isAsset)
-    config.add_subscriber_predicate('assetType', SubscribersPicker)
+    config.add_route_predicate('_internal_type', isAsset)
+    config.add_subscriber_predicate('_internal_type', SubscribersPicker)
     config.add_request_method(asset_from_data)
     config.add_directive('add_assetType',
                          register_assetType)
@@ -29,6 +29,7 @@ def includeme(config, plugin_map):
     config.scan("openregistry.assets.core.subscribers")
     config.registry.registerAdapter(AssetConfigurator, (IAsset, IRequest),
                                     IContentConfigurator)
+    config.registry.asset_type_configurator = {}
 
 
     LOGGER.info("Included openprocurement.assets.core plugin", extra={'MESSAGE_ID': 'included_plugin'})
