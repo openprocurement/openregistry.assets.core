@@ -18,7 +18,6 @@ from openprocurement.api.utils import (
     get_now,
     apply_data_patch,
     prepare_revision,
-    raise_operation_error, # noqa forwarded import
     calculate_business_date, # noqa forwarded import
     get_file, # noqa forwarded import
     update_file_content_type, # noqa forwarded import
