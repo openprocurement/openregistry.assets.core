@@ -23,6 +23,7 @@ from openprocurement.api.utils import (
     update_file_content_type, # noqa forwarded import
     json_view, # noqa forwarded import
     APIResource, # noqa forwarded import
+    raise_operation_error # noqa forwarded import
 
 )
 
