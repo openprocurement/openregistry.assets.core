@@ -30,6 +30,7 @@ from openprocurement.api.utils import (
 from openregistry.assets.core.constants import DEFAULT_ASSET_TYPE
 
 from openregistry.assets.core.traversal import factory
+from openregistry.assets.core.configurator import project_configurator
 
 PKG = get_distribution(__package__)
 LOGGER = getLogger(PKG.project_name)
@@ -55,11 +56,14 @@ def generate_asset_id(ctime, db, server_id=''):
             sleep(1)
         else:
             break
-    return 'UA-AR-DGF-{:04}-{:02}-{:02}-{:06}{}'.format(ctime.year,
-                                                 ctime.month,
-                                                 ctime.day,
-                                                 index,
-                                                 server_id and '-' + server_id)
+
+    return project_configurator.ASSET_PREFIX + '-{:04}-{:02}-{:02}-{:06}{}'.format(
+        ctime.year,
+        ctime.month,
+        ctime.day,
+        index,
+        server_id and '-' + server_id
+    )
 
 
 def extract_asset(request):
