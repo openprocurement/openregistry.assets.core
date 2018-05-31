@@ -57,13 +57,15 @@ def generate_asset_id(ctime, db, server_id=''):
         else:
             break
 
-    return project_configurator.ASSET_PREFIX + '-{:04}-{:02}-{:02}-{:06}{}'.format(
+    asset_id = '{}-{:04}-{:02}-{:02}-{:06}{}'.format(
+        project_configurator.ASSET_PREFIX,
         ctime.year,
         ctime.month,
         ctime.day,
         index,
         server_id and '-' + server_id
     )
+    return asset_id
 
 
 def extract_asset(request):

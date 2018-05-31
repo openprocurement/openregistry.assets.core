@@ -14,14 +14,14 @@ class AssetUtilTest(BaseAssetWebTest):
             'openregistry.assets.core.utils.project_configurator',
             autospec=True
         )
-        asset_prefix = 'UA-AR-DGF'
-        mock_project_configurator.ASSETS_PREFIX = asset_prefix
+        test_prefix = 'UA-AR-DGF'
+        mock_project_configurator.ASSETS_PREFIX = test_prefix
 
         result = generate_asset_id(get_now(), self.db)
         key = get_now().date().isoformat()
         index = self.db.get(key, 1)
         mock_id = '{}-{:04}-{:02}-{:02}-{:06}{}'.format(
-            asset_prefix,
+            test_prefix,
             get_now().year,
             get_now().month,
             get_now().day,
