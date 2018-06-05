@@ -6,6 +6,7 @@ from pyramid.security import Allow
 from zope.interface import implementer
 
 from openprocurement.api.models.common import (
+    sensitive_embedded_role,
     BaseResourceItem,
     Classification,
     Address,
@@ -41,10 +42,11 @@ from schematics_flexible.schematics_flexible import FlexibleModelType
 
 from .constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES
 
+assets_embedded_role = sensitive_embedded_role
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + schematics_embedded_role)
-edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
-view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
+create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + assets_embedded_role)
+edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + assets_embedded_role)
+view_role = (blacklist('owner_token', '_attachments', 'revisions') + assets_embedded_role)
 
 Administrator_role = whitelist('status', 'mode', 'relatedLot')
 concierge_role = (whitelist('status', 'relatedLot'))
@@ -99,10 +101,10 @@ class BaseAsset(BaseResourceItem):
             'Administrator': Administrator_role,
             # complete role
             'complete': view_role,
-            'edit_complete': blacklist('revisions'),
+            'edit_complete': whitelist(),
             # deleted role  # TODO: replace with 'delete' view for asset, temporary solution for tests
             'deleted': view_role,
-            'edit_deleted': blacklist('revisions'),
+            'edit_deleted': whitelist(),
             # concierge_role
             'concierge': concierge_role,
             'default': schematics_default_role,
