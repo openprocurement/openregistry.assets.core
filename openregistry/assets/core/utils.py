@@ -23,8 +23,12 @@ from openprocurement.api.utils import (
     update_file_content_type, # noqa forwarded import
     json_view, # noqa forwarded import
     APIResource, # noqa forwarded import
-    raise_operation_error # noqa forwarded import
-
+    raise_operation_error, # noqa forwarded import
+    get_first_document, # noqa forwarded import
+    check_document, # noqa forwarded import
+    set_first_document_fields, # noqa forwarded import
+    get_type, # noqa forwarded import
+    update_document_url # noqa forwarded import
 )
 
 from openregistry.assets.core.constants import DEFAULT_ASSET_TYPE
