@@ -9,6 +9,9 @@ from openprocurement.api.validation import (
     validate_change_status # noqa forwarder import
 )
 from openprocurement.api.utils import update_logging_context, raise_operation_error
+from openprocurement.api.constants import (
+    TEST_ACCREDITATION,
+)
 
 
 def validate_asset_data(request, error_handler, **kwargs):
@@ -24,7 +27,12 @@ def validate_asset_data(request, error_handler, **kwargs):
         raise error_handler(request)
 
     data = validate_data(request, model, "asset", data=data)
-    if data and data.get('mode', None) is None and request.check_accreditation('t'):
+    # users with test accreditation can create assets only in test mode
+    if (
+        data and
+        data.get('mode', None) is None and
+        request.check_accreditation(TEST_ACCREDITATION)
+    ):
         request.errors.add('body', 'mode', 'Broker Accreditation level does not permit asset creation')
         request.errors.status = 403
         raise error_handler(request)
