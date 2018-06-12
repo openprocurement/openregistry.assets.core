@@ -22,9 +22,9 @@ def validate_asset_data(request, error_handler, **kwargs):
     data = validate_json_data(request)
 
     model = request.asset_from_data(data, create=False)
-    validate_accreditations(request, model)
+    validate_accreditations(request, model, 'asset')
     data = validate_data(request, model, "asset", data=data)
-    validate_t_accreditation(request, data)
+    validate_t_accreditation(request, data, 'asset')
 
 
 def validate_patch_asset_data(request, error_handler, **kwargs):
