@@ -21,7 +21,14 @@ from openprocurement.api.tests.blanks.json_data import (
 
 now = datetime.now()
 
+from openprocurement.api.tests.base import MOCK_CONFIG as BASE_MOCK_CONFIG
+from openregistry.assets.core.tests.fixtures import PARTIAL_MOCK_CONFIG
+from openprocurement.api.utils import connection_mock_config
+
+MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG, ('plugins',), BASE_MOCK_CONFIG)
+
 
 class BaseAssetWebTest(BaseResourceWebTest):
 
     resource_name = 'assets'
+    mock_config = MOCK_CONFIG
