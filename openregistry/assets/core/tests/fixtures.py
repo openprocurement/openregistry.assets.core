@@ -1,7 +1,12 @@
 PARTIAL_MOCK_CONFIG = {
     "api":{
       "plugins":{
-        "assets.core": None
+        "assets.core": None,
+        "transferring": {
+          "plugins": {
+            "assets.transferring": None
+          }
+        }
       }
     }
 }

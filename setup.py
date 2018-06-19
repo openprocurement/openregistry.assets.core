@@ -8,6 +8,9 @@ entry_points = {
     ],
     'openregistry.tests': [
         'assets.core = openregistry.assets.core.tests.main:suite'
+    ],
+    'transferring': [
+        'assets.transferring = openregistry.assets.core.plugins.transferring.includeme:includeme'
     ]
 }
 
