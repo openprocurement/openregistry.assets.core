@@ -9,6 +9,8 @@ from openregistry.assets.core.models import IAsset
 from openprocurement.api.app import get_evenly_plugins
 from openprocurement.api.interfaces import IContentConfigurator
 from openregistry.assets.core.adapters import AssetConfigurator
+from openprocurement.api.utils import get_plugin_aliases
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +35,11 @@ def includeme(config, plugin_map):
 
 
     LOGGER.info("Included openprocurement.assets.core plugin", extra={'MESSAGE_ID': 'included_plugin'})
+
+    # Aliases information
+    LOGGER.info('Start aliases')
+    get_plugin_aliases(plugin_map.get('plugins', {}))
+    LOGGER.info('End aliases')
 
     # search for plugins
     get_evenly_plugins(config, plugin_map['plugins'], 'openregistry.assets.core.plugins')
