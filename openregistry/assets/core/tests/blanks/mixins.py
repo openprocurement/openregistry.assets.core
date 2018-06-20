@@ -24,7 +24,7 @@ from .asset import (
 )
 
 
-class AssetResourceTestMixin(object):
+class BaseAssetResourceTestMixin(object):
     """ Mixin with common tests for Basic Asset and Compound Asset
     """
     test_08_patch_asset = snitch(patch_asset)
@@ -40,4 +40,8 @@ class AssetResourceTestMixin(object):
     test_15_check_active_asset = snitch(change_active_asset)
     test_16_check_deleted_asset = snitch(change_deleted_asset)
     test_17_check_complete_asset = snitch(change_complete_asset)
+
+class AssetResourceTestMixin(BaseAssetResourceTestMixin):
+    """ Mixin with common tests for Basic Asset and Compound Asset
+    """
     test_18_patch_patch_decimal_quantity = snitch(patch_decimal_quantity)

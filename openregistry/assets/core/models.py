@@ -1,29 +1,52 @@
 # -*- coding: utf-8 -*-
 from schematics.transforms import whitelist, blacklist
-from schematics.types.compound import ModelType
 from schematics.types import StringType, MD5Type, ValidationError
-from schematics_flexible.schematics_flexible import FlexibleModelType
+from schematics.types.compound import ModelType
 from pyramid.security import Allow
 from zope.interface import implementer
 
-from openprocurement.api.models.registry_models.ocds import (
-    Organization, Document, Location, ItemClassification,
-    Classification, Unit, Value, Address, DecimalType, Item,
-    Debt  # noqa forwarded import
+from openprocurement.api.models.common import (
+    sensitive_embedded_role,
+    BaseResourceItem,
+    Classification,
+    Address,
+    Location,
+    Period  # noqa forwarded import
+)
+from openprocurement.api.interfaces import IORContent
+from openprocurement.api.models.ocds import (
+    Organization,
+    Document,
+    ItemClassification,
+    Unit,
+    Value,
+    DecimalType,
+    Item,
+    Debt,  # noqa forwarded import
+)
+from openprocurement.api.models.registry_models import (
+    LokiDocument,  # noqa forwarded import
+    LokiItem,  # noqa forwarded import
+    AssetHolder,  # noqa forwarded import
+    AssetCustodian,  # noqa forwarded import
+    Decision,  # noqa forwarded import
+)
+from openprocurement.api.models.roles import (
+    schematics_embedded_role, schematics_default_role, plain_role, listing_role
 )
 from openprocurement.api.models.schematics_extender import IsoDateTimeType, ListType
-from openprocurement.api.models.registry_models.roles import schematics_embedded_role, schematics_default_role, plain_role, listing_role
-from openprocurement.api.models.registry_models.common import BaseResourceItem
-from openprocurement.api.interfaces import IORContent
 
 from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
+from schematics_flexible.schematics_flexible import FlexibleModelType
+
 from .constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES
 
+assets_embedded_role = sensitive_embedded_role
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + schematics_embedded_role)
-edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + schematics_embedded_role)
-view_role = (blacklist('owner_token', '_attachments', 'revisions') + schematics_embedded_role)
+create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + assets_embedded_role)
+edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + assets_embedded_role)
+view_role = (blacklist('owner_token', '_attachments', 'revisions') + assets_embedded_role)
 
 Administrator_role = whitelist('status', 'mode', 'relatedLot')
 concierge_role = (whitelist('status', 'relatedLot'))
@@ -78,14 +101,18 @@ class BaseAsset(BaseResourceItem):
             'Administrator': Administrator_role,
             # complete role
             'complete': view_role,
-            'edit_complete': blacklist('revisions'),
+            'edit_complete': whitelist(),
             # deleted role  # TODO: replace with 'delete' view for asset, temporary solution for tests
             'deleted': view_role,
-            'edit_deleted': blacklist('revisions'),
+            'edit_deleted': whitelist(),
             # concierge_role
             'concierge': concierge_role,
             'default': schematics_default_role,
         }
+
+    status = StringType(choices=ASSET_STATUSES, default="draft")
+    relatedLot = MD5Type(serialize_when_none=False)
+    _internal_type = None
 
     assetID = StringType()  # AssetID should always be the same as the OCID. It is included to make the flattened data structure more convenient.
     date = IsoDateTimeType()
@@ -95,22 +122,15 @@ class BaseAsset(BaseResourceItem):
     description = StringType()
     description_en = StringType()
     description_ru = StringType()
-    value = ModelType(Value)
     assetCustodian = ModelType(Organization, required=True)
     documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the asset.
-    classification = ModelType(ItemClassification, required=True)
-    additionalClassifications = ListType(ModelType(Classification), default=list())
-    unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
-    quantity = DecimalType()  # The number of units required
-    address = ModelType(Address)
-    location = ModelType(Location)
-    schema_properties = FlexibleModelType(SchemaStore())
 
     create_accreditation = 1
     edit_accreditation = 2
 
-    def validate_schema_properties(self, data, new_schema_properties):
-        validate_schema_properties(data, new_schema_properties)
+    def __init__(self, *args, **kwargs):
+        super(BaseAsset, self).__init__(*args, **kwargs)
+        self.doc_type = "Asset"
 
     def __local_roles__(self):
         roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'asset_owner')])
@@ -134,14 +154,20 @@ class BaseAsset(BaseResourceItem):
         ]
         return acl
 
-
-class Asset(BaseAsset):
-    status = StringType(choices=ASSET_STATUSES, default="draft")
-    relatedLot = MD5Type(serialize_when_none=False)
-
-    create_accreditation = 1
-    edit_accreditation = 2
-
     def validate_relatedLot(self, data, lot):
         if data['status'] == 'active' and not lot:
             raise ValidationError(u'This field is required.')
+
+
+class Asset(BaseAsset):
+    value = ModelType(Value)
+    classification = ModelType(ItemClassification, required=True)
+    additionalClassifications = ListType(ModelType(Classification), default=list())
+    unit = ModelType(Unit)  # Description of the unit which the good comes in e.g. hours, kilograms
+    quantity = DecimalType()  # The number of units required
+    address = ModelType(Address)
+    location = ModelType(Location)
+    schema_properties = FlexibleModelType(SchemaStore())
+
+    def validate_schema_properties(self, data, new_schema_properties):
+        validate_schema_properties(data, new_schema_properties)

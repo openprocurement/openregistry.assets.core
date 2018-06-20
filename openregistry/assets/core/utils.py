@@ -17,15 +17,32 @@ from openprocurement.api.utils import (
     context_unpack,
     get_now,
     apply_data_patch,
-    prepare_revision
+    prepare_revision,
+    calculate_business_date, # noqa forwarded import
+    get_file, # noqa forwarded import
+    update_file_content_type, # noqa forwarded import
+    json_view, # noqa forwarded import
+    APIResource, # noqa forwarded import
+    raise_operation_error, # noqa forwarded import
+    get_first_document, # noqa forwarded import
+    check_document, # noqa forwarded import
+    set_first_document_fields, # noqa forwarded import
+    get_type, # noqa forwarded import
+    update_document_url # noqa forwarded import
 )
 
 from openregistry.assets.core.constants import DEFAULT_ASSET_TYPE
 
 from openregistry.assets.core.traversal import factory
+from openregistry.assets.core.configurator import project_configurator
 
 PKG = get_distribution(__package__)
 LOGGER = getLogger(PKG.project_name)
+VERSION = '{}.{}'.format(
+    int(PKG.parsed_version[0]),
+    int(PKG.parsed_version[1]) if PKG.parsed_version[1].isdigit() else 0
+)
+ROUTE_PREFIX = '/api/{}'.format(VERSION)
 
 
 opassetsresource = partial(resource,
@@ -48,11 +65,16 @@ def generate_asset_id(ctime, db, server_id=''):
             sleep(1)
         else:
             break
-    return 'UA-AR-DGF-{:04}-{:02}-{:02}-{:06}{}'.format(ctime.year,
-                                                 ctime.month,
-                                                 ctime.day,
-                                                 index,
-                                                 server_id and '-' + server_id)
+
+    asset_id = '{}-{:04}-{:02}-{:02}-{:06}{}'.format(
+        project_configurator.ASSET_PREFIX,
+        ctime.year,
+        ctime.month,
+        ctime.day,
+        index,
+        server_id and '-' + server_id
+    )
+    return asset_id
 
 
 def extract_asset(request):
@@ -85,8 +107,18 @@ def extract_asset_adapter(request, asset_id):
     return request.asset_from_data(doc)
 
 
+def get_asset_types(registry, internal_types):
+    asset_types = [
+        at for at, it in registry.asset_type_configurator.items() if it in internal_types
+    ]
+    return asset_types
+
+
 def asset_from_data(request, data, raise_error=True, create=True):
-    assetType = data.get('assetType', DEFAULT_ASSET_TYPE)
+    assetType = data.get('assetType')
+    if not assetType:
+        asset_types = get_asset_types(request.registry, (DEFAULT_ASSET_TYPE,))
+        assetType = asset_types[0] if asset_types else DEFAULT_ASSET_TYPE
     model = request.registry.assetTypes.get(assetType)
     if model is None and raise_error:
         request.errors.add('body', 'assetType', 'Not implemented')
@@ -120,18 +152,22 @@ class isAsset(object):
 
     def __call__(self, context, request):
         if request.asset is not None:
-            return getattr(request.asset, 'assetType', None) == self.val
+            asset_type = getattr(request.asset, 'assetType', None)
+            return request.registry.asset_type_configurator.get(asset_type) == self.val
         return False
 
 
-def register_assetType(config, model):
+def register_assetType(config, model, asset_type):
     """Register a assetType.
     :param config:
         The pyramid configuration object that will be populated.
     :param model:
         The asset model class
+    :param asset_type
+        Asset type associated with internal_type
     """
-    config.registry.assetTypes[model.assetType.default] = model
+    config.registry.assetTypes[asset_type] = model
+    config.registry.asset_type_configurator[asset_type] = model._internal_type
 
 
 class SubscribersPicker(isAsset):
@@ -139,7 +175,8 @@ class SubscribersPicker(isAsset):
 
     def __call__(self, event):
         if event.asset is not None:
-            return getattr(event.asset, 'assetType', None) == self.val
+            asset_type = getattr(event.asset, 'assetType', None)
+            return event.asset._internal_type == self.val
         return False
 
 
@@ -176,3 +213,4 @@ def save_asset(request):
             LOGGER.info('Saved asset {}: dateModified {} -> {}'.format(asset.id, old_dateModified and old_dateModified.isoformat(), asset.dateModified.isoformat()),
                         extra=context_unpack(request, {'MESSAGE_ID': 'save_asset'}, {'RESULT': asset.rev}))
             return True
+

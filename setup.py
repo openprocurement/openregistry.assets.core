@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.1.2'
+version = '0.2'
 
 entry_points = {
     'openprocurement.api.plugins': [
@@ -8,8 +8,13 @@ entry_points = {
     ],
     'openregistry.tests': [
         'assets.core = openregistry.assets.core.tests.main:suite'
+    ],
+    'transferring': [
+        'assets.transferring = openregistry.assets.core.plugins.transferring.includeme:includeme'
     ]
 }
+
+test_requires = []
 
 setup(name='openregistry.assets.core',
       version=version,
@@ -28,5 +33,6 @@ setup(name='openregistry.assets.core',
       namespace_packages=['openregistry', 'openregistry.assets'],
       include_package_data=True,
       zip_safe=False,
+      extras_require={'test': test_requires},
       entry_points=entry_points,
       )

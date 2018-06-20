@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.validation import validate_data, validate_json_data
-from openprocurement.api.utils import update_logging_context, raise_operation_error
+from openprocurement.api.validation import (
+    validate_accreditations,
+    validate_change_status, # noqa forwarder import
+    validate_data,
+    validate_document_data, # noqa forwarded import
+    validate_file_upload, # noqa forwarder import
+    validate_items_uniq, # noqa forwarded import
+    validate_json_data,
+    validate_patch_document_data, # noqa forwarded import
+    validate_t_accreditation,
+)
+from openprocurement.api.utils import (
+    raise_operation_error,
+    update_logging_context,
+)
+from openprocurement.api.plugins.transferring.validation import (
+    validate_accreditation_level
+)
 
 
 def validate_asset_data(request, error_handler, **kwargs):
@@ -9,17 +25,9 @@ def validate_asset_data(request, error_handler, **kwargs):
     data = validate_json_data(request)
 
     model = request.asset_from_data(data, create=False)
-    if not any([request.check_accreditation(acc) for acc in iter(str(model.create_accreditation))]):
-        request.errors.add('body', 'accreditation',
-                           'Broker Accreditation level does not permit asset creation')
-        request.errors.status = 403
-        raise error_handler(request)
-
-    data = validate_data(request, model, data=data)
-    if data and data.get('mode', None) is None and request.check_accreditation('t'):
-        request.errors.add('body', 'mode', 'Broker Accreditation level does not permit asset creation')
-        request.errors.status = 403
-        raise error_handler(request)
+    validate_accreditations(request, model, 'asset')
+    data = validate_data(request, model, "asset", data=data)
+    validate_t_accreditation(request, data, 'asset')
 
 
 def validate_patch_asset_data(request, error_handler, **kwargs):
@@ -35,7 +43,7 @@ def validate_patch_asset_data(request, error_handler, **kwargs):
 
 
 def validate_data_by_model(request, error_handler, **kwargs):
-    return validate_data(request, type(request.asset), True, validate_json_data(request))
+    return validate_data(request, type(request.asset), data=validate_json_data(request))
 
 
 def validate_asset_document_update_not_by_author_or_asset_owner(request, error_handler, **kwargs):
@@ -49,3 +57,10 @@ def validate_document_operation_in_not_allowed_asset_status(request, error_handl
     if status != 'pending':
         raise_operation_error(request, error_handler,
                               'Can\'t update document in current ({}) asset status'.format(status))
+
+def validate_asset_accreditation_level(request, **kwargs):
+    if hasattr(request.validated['asset'], 'transfer_accreditation'):
+        predicate = 'transfer_accreditation'
+    else:
+        predicate = 'create_accreditation'
+    validate_accreditation_level(request, request.validated['asset'], predicate)
