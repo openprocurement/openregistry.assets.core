@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from uuid import uuid4
+import unittest
+from copy import deepcopy
+
 from openprocurement.api.tests.base import create_blacklist
 from openregistry.assets.core.constants import (
     STATUS_CHANGES,
@@ -8,11 +12,6 @@ from openregistry.assets.core.constants import (
     DEFAULT_ACCELERATION
 )
 from openregistry.assets.core.utils import calculate_business_date
-
-
-from uuid import uuid4
-import unittest
-from copy import deepcopy
 
 # AssetResourceTest
 
