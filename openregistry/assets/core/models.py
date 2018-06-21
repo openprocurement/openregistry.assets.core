@@ -40,7 +40,7 @@ from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
 from schematics_flexible.schematics_flexible import FlexibleModelType
 
-from .constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES, SANDBOX_MODE
+from openregistry.assets.core.constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES, SANDBOX_MODE
 
 assets_embedded_role = sensitive_embedded_role
 
