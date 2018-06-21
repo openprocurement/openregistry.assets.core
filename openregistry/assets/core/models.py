@@ -176,7 +176,7 @@ class BaseAsset(BaseResourceItem):
             raise ValidationError(u'This field is required.')
 
     def validate_sandbox_parameters(self):
-        if self.mode and self.mode == 'test' and self.sandboxParameters and self.sandboxParameters == '':
+        if self.mode and self.mode == 'test' and self.sandboxParameters:
             raise ValidationError(u"procurementMethodDetails should be used with mode test")
 
 
