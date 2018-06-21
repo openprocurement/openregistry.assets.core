@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from openprocurement.api.constants import (
     DOCUMENT_TYPES,  # noqa forwarded import
-    LOKI_DOCUMENT_TYPES  # noqa forwared import
+    LOKI_DOCUMENT_TYPES,  # noqa forwarded import
+    SANDBOX_MODE  # noqa forwarded import
 )
+
+DEFAULT_ACCELERATION = 1440
 
 DEFAULT_ASSET_TYPE = 'basic'
 

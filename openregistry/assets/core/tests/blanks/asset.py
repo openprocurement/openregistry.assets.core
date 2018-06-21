@@ -1,11 +1,27 @@
 # -*- coding: utf-8 -*-
 
 from openprocurement.api.tests.base import create_blacklist
-from openregistry.assets.core.constants import STATUS_CHANGES, ASSET_STATUSES
+from openregistry.assets.core.constants import (
+    STATUS_CHANGES,
+    ASSET_STATUSES,
+    SANDBOX_MODE,
+    DEFAULT_ACCELERATION
+)
+from openregistry.assets.core.utils import calculate_business_date
+
 
 from uuid import uuid4
+import unittest
+from copy import deepcopy
 
 # AssetResourceTest
+
+
+@unittest.skipIf(False, 'If sandbox mode is disabled assetParameters has not procurementMethodDetails field')
+def sandbox_parameter(self):
+    data = deepcopy(self.initial_data)
+    data['sandboxParameters'] = 'quick, accelerator={}'.format(DEFAULT_ACCELERATION)
+    self.assertEqual(data['sandboxParameters'], 'quick, accelerator={}'.format(DEFAULT_ACCELERATION))
 
 
 def patch_asset(self):

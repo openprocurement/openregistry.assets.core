@@ -35,6 +35,7 @@ class BaseAssetWebTest(BaseResourceWebTest):
     resource_name = 'assets'
     mock_config = MOCK_CONFIG
 
+
 class AssetTransferWebTest(BaseAssetWebTest):
     initial_lots = None
 
