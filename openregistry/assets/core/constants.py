@@ -5,8 +5,6 @@ from openprocurement.api.constants import (
     SANDBOX_MODE  # noqa forwarded import
 )
 
-DEFAULT_ACCELERATION = 1440
-
 DEFAULT_ASSET_TYPE = 'basic'
 
 ASSET_STATUSES = ['draft', 'pending', "verification",

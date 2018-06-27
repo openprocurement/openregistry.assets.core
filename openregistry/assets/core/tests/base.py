@@ -28,6 +28,7 @@ from openregistry.assets.core.tests.fixtures import PARTIAL_MOCK_CONFIG
 from openprocurement.api.utils import connection_mock_config
 
 MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG, ('plugins',), BASE_MOCK_CONFIG)
+DEFAULT_ACCELERATION = 1440
 
 
 class BaseAssetWebTest(BaseResourceWebTest):
