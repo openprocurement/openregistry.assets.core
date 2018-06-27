@@ -8,8 +8,9 @@ from openregistry.assets.core.constants import (
     STATUS_CHANGES,
     ASSET_STATUSES,
     SANDBOX_MODE,
-    DEFAULT_ACCELERATION
 )
+from openregistry.assets.core.tests.base import DEFAULT_ACCELERATION
+
 from openregistry.assets.core.utils import calculate_business_date
 # AssetResourceTest
 
