@@ -40,11 +40,25 @@ from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
 from schematics_flexible.schematics_flexible import FlexibleModelType
 
-from .constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES
+from openregistry.assets.core.constants import ASSET_STATUSES, ALLOWED_SCHEMA_PROPERIES_CODES, SANDBOX_MODE
 
 assets_embedded_role = sensitive_embedded_role
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'status') + assets_embedded_role)
+create_role = (
+        blacklist(
+            'owner_token',
+            'owner',
+            '_attachments',
+            'revisions',
+            'date',
+            'dateModified',
+            'doc_id',
+            'assetID',
+            'documents',
+            'status',
+            'sandboxParameters',
+        ) + assets_embedded_role
+)
 edit_role = (blacklist('assetType', 'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'assetID', 'documents', 'mode') + assets_embedded_role)
 view_role = (blacklist('owner_token', '_attachments', 'revisions') + assets_embedded_role)
 
@@ -128,6 +142,9 @@ class BaseAsset(BaseResourceItem):
     create_accreditation = 1
     edit_accreditation = 2
 
+    if SANDBOX_MODE:
+        sandboxParameters = StringType()
+
     def __init__(self, *args, **kwargs):
         super(BaseAsset, self).__init__(*args, **kwargs)
         self.doc_type = "Asset"
@@ -157,6 +174,10 @@ class BaseAsset(BaseResourceItem):
     def validate_relatedLot(self, data, lot):
         if data['status'] == 'active' and not lot:
             raise ValidationError(u'This field is required.')
+
+    def validate_sandbox_parameters(self):
+        if self.mode and self.mode == 'test' and self.sandboxParameters:
+            raise ValidationError(u"procurementMethodDetails should be used with mode test")
 
 
 class Asset(BaseAsset):

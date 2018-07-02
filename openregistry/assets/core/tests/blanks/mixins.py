@@ -21,6 +21,7 @@ from .asset import (
     change_deleted_asset,
     change_complete_asset,
     patch_decimal_quantity,
+    sandbox_parameter,
 )
 
 
@@ -40,6 +41,8 @@ class BaseAssetResourceTestMixin(object):
     test_15_check_active_asset = snitch(change_active_asset)
     test_16_check_deleted_asset = snitch(change_deleted_asset)
     test_17_check_complete_asset = snitch(change_complete_asset)
+    test_sandbox_parameter = snitch(sandbox_parameter)
+
 
 class AssetResourceTestMixin(BaseAssetResourceTestMixin):
     """ Mixin with common tests for Basic Asset and Compound Asset
