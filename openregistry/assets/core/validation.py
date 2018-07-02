@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from functools import partial
+
 from openprocurement.api.validation import (
     validate_accreditations,
     validate_change_status, # noqa forwarder import
@@ -9,6 +11,10 @@ from openprocurement.api.validation import (
     validate_json_data,
     validate_patch_document_data, # noqa forwarded import
     validate_t_accreditation,
+    validate_decision_post, # noqa forwarded import
+    validate_decision_patch_data, # noqa forwarded import
+    validate_decision_after_rectificationPeriod,
+    validate_decision_update_in_not_allowed_status
 )
 from openprocurement.api.utils import (
     raise_operation_error,
@@ -16,6 +22,16 @@ from openprocurement.api.utils import (
 )
 from openprocurement.api.plugins.transferring.validation import (
     validate_accreditation_level
+)
+
+
+validate_decision_after_rectificationPeriod = partial(
+    validate_decision_after_rectificationPeriod,
+    parent_resource='asset'
+)
+validate_decision_update_in_not_allowed_status = partial(
+    validate_decision_update_in_not_allowed_status,
+    parent_resource='asset'
 )
 
 
