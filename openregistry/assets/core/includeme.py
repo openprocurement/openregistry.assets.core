@@ -3,10 +3,9 @@ import logging
 from pyramid.interfaces import IRequest
 from openregistry.assets.core.utils import (
     extract_asset, isAsset, register_assetType,
-    asset_from_data, SubscribersPicker
+    asset_from_data, SubscribersPicker, get_evenly_plugins
 )
 from openregistry.assets.core.models import IAsset
-from openprocurement.api.app import get_evenly_plugins
 from openprocurement.api.interfaces import IContentConfigurator
 from openregistry.assets.core.adapters import AssetConfigurator
 from openprocurement.api.utils import get_plugin_aliases
