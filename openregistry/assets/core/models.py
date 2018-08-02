@@ -35,7 +35,10 @@ from openprocurement.api.models.roles import (
     schematics_embedded_role, schematics_default_role, plain_role, listing_role
 )
 from openprocurement.api.models.schematics_extender import IsoDateTimeType, ListType
-
+from openprocurement.api.validation import (
+    validate_items_uniq,  # noqa forwarded import
+    koatuu_validator  # noqa forwarded import
+)
 from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
 from schematics_flexible.schematics_flexible import FlexibleModelType
