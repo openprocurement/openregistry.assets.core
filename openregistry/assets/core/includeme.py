@@ -40,5 +40,9 @@ def includeme(config, plugin_map):
     get_plugin_aliases(plugin_map.get('plugins', {}))
     LOGGER.info('End aliases')
 
+
+    # add accreditation
+    config.registry.accreditations = {'asset': {}}
+
     # search for plugins
     get_evenly_plugins(config, plugin_map['plugins'], 'openregistry.assets.core.plugins')

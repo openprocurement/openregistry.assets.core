@@ -139,9 +139,6 @@ class BaseAsset(BaseResourceItem):
     assetCustodian = ModelType(Organization, required=True)
     documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the asset.
 
-    create_accreditation = 1
-    edit_accreditation = 2
-
     if SANDBOX_MODE:
         sandboxParameters = StringType()
 

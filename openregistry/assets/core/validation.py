@@ -20,6 +20,7 @@ from openprocurement.api.validation import (
 from openprocurement.api.utils import (
     raise_operation_error,
     update_logging_context,
+    get_resource_accreditations
 )
 from openprocurement.api.plugins.transferring.validation import (
     validate_accreditation_level
@@ -69,15 +70,14 @@ def validate_asset_document_update_not_by_author_or_asset_owner(request, error_h
         request.errors.status = 403
         raise error_handler(request)
 
+
 def validate_document_operation_in_not_allowed_asset_status(request, error_handler, **kwargs):
     status = request.validated['asset_status']
     if status != 'pending':
         raise_operation_error(request, error_handler,
                               'Can\'t update document in current ({}) asset status'.format(status))
 
+
 def validate_asset_accreditation_level(request, **kwargs):
-    if hasattr(request.validated['asset'], 'transfer_accreditation'):
-        predicate = 'transfer_accreditation'
-    else:
-        predicate = 'create_accreditation'
-    validate_accreditation_level(request, request.validated['asset'], predicate)
+    levels = get_resource_accreditations(request, 'asset')['create']
+    validate_accreditation_level(request, request.validated['asset'], levels)
