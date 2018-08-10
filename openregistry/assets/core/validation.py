@@ -79,5 +79,5 @@ def validate_document_operation_in_not_allowed_asset_status(request, error_handl
 
 
 def validate_asset_accreditation_level(request, **kwargs):
-    levels = get_resource_accreditations(request, 'asset')['create']
+    levels = get_resource_accreditations(request, 'asset', request.context)['create']
     validate_accreditation_level(request, request.validated['asset'], levels)
