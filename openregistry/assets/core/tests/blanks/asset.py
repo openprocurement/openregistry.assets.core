@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 import unittest
-
+from copy import deepcopy
 from openprocurement.api.tests.base import create_blacklist
 from openregistry.assets.core.constants import (
     STATUS_CHANGES,
@@ -193,14 +193,12 @@ def asset_concierge_patch(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'verification')
 
-
     # Move status from verification to Pending
     response = self.app.patch_json('/{}'.format(
         asset['id']), {'data': {'status': 'pending'}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], 'pending')
-
 
     # Move status from pending to verification
     response = self.app.patch_json('/{}'.format(
@@ -859,3 +857,27 @@ def patch_decimal_item_quantity(self):
         rounded_quantity = round(float(quantity), precision)
         for item in response.json['data']['items']:
             self.assertEqual(item['quantity'], rounded_quantity)
+
+
+def koatuu_additional_classification(self):
+    input_classification = [{"scheme": "koatuu",
+                                "id": "0110136600",
+                                "description": "test"}]
+
+    initial_data = deepcopy(self.initial_data)
+    initial_data['additionalClassifications'] = input_classification
+
+    response = self.app.post_json('/', {'data': initial_data})
+    output_classification = response.json['data']['additionalClassifications']
+    self.assertEqual(input_classification, output_classification)
+
+    initial_data['additionalClassifications'][0]['id'] = '01101366000'
+    response = self.app.post_json('/', {'data': initial_data}, status=201)
+
+    initial_data['additionalClassifications'][0]['id'] = '1110136600'
+    response = self.app.post_json('/', {'data': initial_data}, status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+
+    initial_data['additionalClassifications'][0]['id'] = '7510136600'
+    response = self.app.post_json('/', {'data': initial_data}, status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')

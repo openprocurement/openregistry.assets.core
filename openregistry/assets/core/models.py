@@ -183,6 +183,10 @@ class BaseAsset(BaseResourceItem):
             raise ValidationError(u"procurementMethodDetails should be used with mode test")
 
 
+class AssetAdditionalClassification(Classification):
+    _id_field_validators = Classification._id_field_validators + (koatuu_validator,)
+
+
 class Asset(BaseAsset):
     value = ModelType(Value)
     classification = ModelType(ItemClassification, required=True)
