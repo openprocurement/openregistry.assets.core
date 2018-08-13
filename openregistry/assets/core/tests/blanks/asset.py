@@ -871,8 +871,8 @@ def koatuu_additional_classification(self):
     output_classification = response.json['data']['additionalClassifications']
     self.assertEqual(input_classification, output_classification)
 
-    initial_data['additionalClassifications'][0]['id'] = '01101366000'
-    response = self.app.post_json('/', {'data': initial_data}, status=201)
+    initial_data['additionalClassifications'][0]['id'] = '1421580802'
+    self.app.post_json('/', {'data': initial_data}, status=201)
 
     initial_data['additionalClassifications'][0]['id'] = '1110136600'
     response = self.app.post_json('/', {'data': initial_data}, status=422)
