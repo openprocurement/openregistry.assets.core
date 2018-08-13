@@ -35,7 +35,10 @@ from openprocurement.api.models.roles import (
     schematics_embedded_role, schematics_default_role, plain_role, listing_role
 )
 from openprocurement.api.models.schematics_extender import IsoDateTimeType, ListType
-
+from openprocurement.api.validation import (
+    validate_items_uniq,  # noqa forwarded import
+    koatuu_validator  # noqa forwarded import
+)
 from openprocurement.schemas.dgf.schemas_store import SchemaStore
 
 from schematics_flexible.schematics_flexible import FlexibleModelType
@@ -178,6 +181,10 @@ class BaseAsset(BaseResourceItem):
     def validate_sandbox_parameters(self):
         if self.mode and self.mode == 'test' and self.sandboxParameters:
             raise ValidationError(u"procurementMethodDetails should be used with mode test")
+
+
+class AssetAdditionalClassification(Classification):
+    _id_field_validators = Classification._id_field_validators + (koatuu_validator,)
 
 
 class Asset(BaseAsset):
