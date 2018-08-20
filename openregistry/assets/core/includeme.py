@@ -42,7 +42,7 @@ def includeme(config, plugin_map):
 
 
     # add accreditation
-    config.registry.accreditations = {'asset': {}}
+    config.registry.accreditation = {'asset': {}}
 
     # search for plugins
     get_evenly_plugins(config, plugin_map['plugins'], 'openregistry.assets.core.plugins')

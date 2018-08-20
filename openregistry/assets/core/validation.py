@@ -20,7 +20,7 @@ from openprocurement.api.validation import (
 from openprocurement.api.utils import (
     raise_operation_error,
     update_logging_context,
-    get_resource_accreditations
+    get_resource_accreditation
 )
 from openprocurement.api.plugins.transferring.validation import (
     validate_accreditation_level
@@ -79,5 +79,5 @@ def validate_document_operation_in_not_allowed_asset_status(request, error_handl
 
 
 def validate_asset_accreditation_level(request, **kwargs):
-    levels = get_resource_accreditations(request, 'asset', request.context)['create']
+    levels = get_resource_accreditation(request, 'asset', request.context, 'create')
     validate_accreditation_level(request, request.validated['asset'], levels)
