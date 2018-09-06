@@ -4,8 +4,8 @@ from openprocurement.api.plugins.transferring.validation import (
 from openprocurement.api.utils import (
     json_view, context_unpack, APIResource
 )
-from openregistry.assets.core.validation import (
-    validate_asset_accreditation_level
+from openregistry.assets.core.plugins.transferring.validation import (
+    validate_change_ownership_accreditation
 )
 from openregistry.assets.core.utils import (
     save_asset,
@@ -21,7 +21,7 @@ from openregistry.assets.core.utils import (
 class AssetOwnership(APIResource):
     @json_view(permission='create_asset',
                validators=(validate_ownership_data,
-                           validate_asset_accreditation_level))
+                           validate_change_ownership_accreditation))
     def post(self):
         asset = self.request.validated['asset']
         asset_path = "Asset"
@@ -38,4 +38,4 @@ class AssetOwnership(APIResource):
             )
 
             return {'data': self.request.context.serialize('view')}
-    
+
