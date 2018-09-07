@@ -41,7 +41,7 @@ class AssetTransferWebTest(BaseAssetWebTest):
     initial_lots = None
 
     def setUp(self):
-        super(AssetTransferWebTest, self).setUp()   
+        super(AssetTransferWebTest, self).setUp()
         self.create_resource()
         self.asset_blank = self.app.RequestClass.blank
         self.app.RequestClass.blank = self._blank
@@ -67,7 +67,7 @@ class AssetTransferWebTest(BaseAssetWebTest):
         self.app.post_json('/assets/{}/ownership'.format(asset_id), req_data)
         response = self.app.get('/transfers/{}'.format(transfer['data']['id']))
         return response.json
-    
+
     def add_lots_to_asset(self, asset, need_lots=None):
         lots = []
         for i in need_lots:
@@ -77,7 +77,7 @@ class AssetTransferWebTest(BaseAssetWebTest):
         asset['lots']  = lots
         for i, item in enumerate(asset['items']):
             item['relatedLot'] = lots[i % len(lots)]['id']
-    
+
     def create_asset_unit(self, auth=None, data=None, lots=None):
         auth_switch = False
 

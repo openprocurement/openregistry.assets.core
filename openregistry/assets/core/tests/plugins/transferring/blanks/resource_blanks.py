@@ -8,7 +8,7 @@ def change_resource_ownership(self):
     change_ownership_url = '/assets/{}/ownership'
     post = self.app.post_json
     req_data = {"data": {"id": 1984}}
-    
+
     response = post(change_ownership_url.format(self.resource_id), req_data, status=422)
     self.assertEqual(response.status, '422 Unprocessable Entity')
     self.assertEqual(response.json['errors'], [
@@ -18,12 +18,12 @@ def change_resource_ownership(self):
 
     asset = self.get_asset(self.resource_id)
     self.assertEqual(asset['data']['owner'], self.first_owner)
-    
+
     self.app.authorization = ('Basic', (self.second_owner, ''))
     transfer = self.create_transfer()
     req_data = {"data": {"id": transfer['data']['id'],
                          'transfer': self.resource_transfer}}
-    
+
     response = post(change_ownership_url.format(self.resource_id), req_data)
     self.assertEqual(response.status, '200 OK')
     self.assertNotIn('transfer', response.json['data'])
@@ -139,7 +139,7 @@ def broker_not_accreditation_level(self):
     # try to use transfer by broker without appropriate accreditation level
     self.app.authorization = ('Basic', (self.invalid_owner, ''))
     transfer = self.create_transfer()
-    
+
     req_data = {"data": {"id": transfer['data']['id'],
                          'transfer': self.resource_transfer}}
     req_url = '/assets/{}/ownership'.format(self.resource_id)
