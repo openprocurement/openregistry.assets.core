@@ -49,3 +49,8 @@ STATUS_CHANGES = {
 }
 
 ALLOWED_SCHEMA_PROPERIES_CODES = ['04', '341', '06']
+
+ENDPOINTS = {
+    'assets_collection': '/assets',
+    'assets': '/assets/{asset_id}',
+}

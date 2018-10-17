@@ -25,6 +25,7 @@ from openregistry.assets.core.utils import (
     generate_asset_id
 )
 from openregistry.assets.core.interfaces import IAssetManager
+from openregistry.assets.core.constants import ENDPOINTS
 
 patch_asset_validators = (
     validate_patch_asset_data,
@@ -34,7 +35,7 @@ patch_asset_validators = (
 
 
 @opassetsresource(name='Assets',
-                  path='/assets',
+                  path=ENDPOINTS['assets_collection'],
                   description="Open Contracting compatible data exchange format.")
 class AssetsResource(APIResourceListing):
 
@@ -81,7 +82,7 @@ class AssetsResource(APIResourceListing):
 
 
 @opassetsresource(name='Asset',
-                  path='/assets/{asset_id}',
+                  path=ENDPOINTS['assets'],
                   description="Open Contracting compatible data exchange format.")
 class AssetResource(APIResource):
 
