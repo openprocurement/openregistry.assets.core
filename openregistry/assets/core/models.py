@@ -171,10 +171,6 @@ class BaseAsset(BaseResourceItem):
         ]
         return acl
 
-    def validate_relatedLot(self, data, lot):
-        if data['status'] == 'active' and not lot:
-            raise ValidationError(u'This field is required.')
-
     def validate_sandbox_parameters(self):
         if self.mode and self.mode == 'test' and self.sandboxParameters:
             raise ValidationError(u"procurementMethodDetails should be used with mode test")
