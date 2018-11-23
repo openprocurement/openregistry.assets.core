@@ -11,5 +11,5 @@ from openprocurement.api.tests.blanks.json_data import (
 test_related_process_data = {
     'relatedProcessID': '1' * 32,
     'type': 'asset',
-    'childID': 'lo' * 16,
+    'parentID': 'lo' * 16,
 }
