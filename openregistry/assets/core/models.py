@@ -13,6 +13,9 @@ from openprocurement.api.models.common import (
     Location,
     Period  # noqa forwarded import
 )
+from openprocurement.api.models.schema import (
+    RelatedProcess,  # noqa forwarded import
+)
 from openprocurement.api.interfaces import IORContent
 from openprocurement.api.models.ocds import (
     Organization,

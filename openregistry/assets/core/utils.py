@@ -32,6 +32,7 @@ from openprocurement.api.utils import (
     get_evenly_plugins,  # noqa forwarded import
     get_plugins,  # noqa forwarded import
 )
+from openprocurement.api.plugins.related_processes import add_related_processes_views  # noqa import forward
 
 from openregistry.assets.core.constants import DEFAULT_ASSET_TYPE
 

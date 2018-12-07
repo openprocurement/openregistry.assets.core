@@ -26,6 +26,9 @@ now = datetime.now()
 from openprocurement.api.tests.base import MOCK_CONFIG as BASE_MOCK_CONFIG
 from openregistry.assets.core.tests.fixtures import PARTIAL_MOCK_CONFIG
 from openprocurement.api.utils import connection_mock_config
+from openprocurement.api.tests.blanks.related_processes import (
+    RelatedProcessesTestMixinBase,  # forwarded import
+)
 
 MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG, ('plugins',), BASE_MOCK_CONFIG)
 DEFAULT_ACCELERATION = 1440

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from zope.interface import (
-    Attribute, Interface
+from zope.interface import Attribute
+from openprocurement.api.interfaces import (
+    IContentConfigurator,  # noqa forwarded import
+    IResourceManager,
 )
-from openprocurement.api.interfaces import IContentConfigurator  # noqa forwarded import
 
 
-class IAssetManager(Interface):
+class IAssetManager(IResourceManager):
     name = Attribute('Asset name')
 
     def change_asset(request, context):

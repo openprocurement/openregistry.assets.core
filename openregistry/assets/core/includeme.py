@@ -32,14 +32,12 @@ def includeme(config, plugin_map):
                                     IContentConfigurator)
     config.registry.asset_type_configurator = {}
 
-
     LOGGER.info("Included openprocurement.assets.core plugin", extra={'MESSAGE_ID': 'included_plugin'})
 
     # Aliases information
     LOGGER.info('Start aliases')
     get_plugin_aliases(plugin_map.get('plugins', {}))
     LOGGER.info('End aliases')
-
 
     # add accreditation
     config.registry.accreditation['asset'] = {}
