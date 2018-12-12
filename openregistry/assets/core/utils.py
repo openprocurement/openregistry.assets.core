@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pyramid.exceptions import URLDecodeError
 from pyramid.compat import decode_path_info
 from cornice.resource import resource
