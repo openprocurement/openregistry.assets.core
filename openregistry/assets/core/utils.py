@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pyramid.exceptions import URLDecodeError
 from pyramid.compat import decode_path_info
 from cornice.resource import resource
@@ -31,6 +32,7 @@ from openprocurement.api.utils import (
     update_document_url,  # noqa forwarded import
     get_evenly_plugins,  # noqa forwarded import
     get_plugins,  # noqa forwarded import
+    read_json,  # noqa forwarded import
 )
 from openprocurement.api.plugins.related_processes import add_related_processes_views  # noqa import forward
 
@@ -216,4 +218,3 @@ def save_asset(request):
             LOGGER.info('Saved asset {}: dateModified {} -> {}'.format(asset.id, old_dateModified and old_dateModified.isoformat(), asset.dateModified.isoformat()),
                         extra=context_unpack(request, {'MESSAGE_ID': 'save_asset'}, {'RESULT': asset.rev}))
             return True
-
