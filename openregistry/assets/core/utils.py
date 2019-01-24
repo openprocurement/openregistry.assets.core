@@ -34,6 +34,7 @@ from openprocurement.api.utils import (
     get_plugins,  # noqa forwarded import
     read_json,  # noqa forwarded import
 )
+from openprocurement.api.utils.searchers import search_list_with_dicts  # noqa import forward
 from openprocurement.api.plugins.related_processes import add_related_processes_views  # noqa import forward
 
 from openregistry.assets.core.constants import DEFAULT_ASSET_TYPE
