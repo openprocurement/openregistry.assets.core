@@ -34,6 +34,7 @@ from openprocurement.api.utils import (
     get_plugins,  # noqa forwarded import
     read_json,  # noqa forwarded import
 )
+from openprocurement.api.constants import VERSION
 from openprocurement.api.utils.searchers import search_list_with_dicts  # noqa import forward
 from openprocurement.api.plugins.related_processes import add_related_processes_views  # noqa import forward
 
@@ -44,10 +45,6 @@ from openregistry.assets.core.configurator import project_configurator
 
 PKG = get_distribution(__package__)
 LOGGER = getLogger(PKG.project_name)
-VERSION = '{}.{}'.format(
-    int(PKG.parsed_version[0]),
-    int(PKG.parsed_version[1]) if PKG.parsed_version[1].isdigit() else 0
-)
 ROUTE_PREFIX = '/api/{}'.format(VERSION)
 
 
