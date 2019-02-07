@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.2.4'
+VERSION = '0.2.5'
 
 entry_points = {
     'openprocurement.api.plugins': [
@@ -17,7 +17,7 @@ entry_points = {
 test_requires = []
 
 setup(name='openregistry.assets.core',
-      version=version,
+      version=VERSION,
       description="",
       long_description=open("README.rst").read(),
       # Get more strings from
