@@ -1,14 +1,23 @@
 # -*- coding: utf-8 -*-
 import logging
 from pyramid.interfaces import IRequest
+
 from openregistry.assets.core.utils import (
-    extract_asset, isAsset, register_assetType,
-    asset_from_data, SubscribersPicker, get_evenly_plugins
+    extract_asset,
+    isAsset,
+    register_assetType,
+    asset_from_data,
+    SubscribersPicker,
+    get_evenly_plugins,
 )
-from openregistry.assets.core.models import IAsset
 from openprocurement.api.interfaces import IContentConfigurator
-from openregistry.assets.core.adapters import AssetConfigurator
+from openprocurement.api.plugins.related_processes import add_related_processes_views
 from openprocurement.api.utils import get_plugin_aliases
+from openregistry.assets.core.adapters import AssetConfigurator
+from openregistry.assets.core.constants import ENDPOINTS
+from openregistry.assets.core.models import IAsset
+from openregistry.assets.core.traversal import factory
+from openregistry.assets.core.views.related_processes import AssetsRelatedProcessesResource
 
 
 LOGGER = logging.getLogger(__name__)
@@ -44,3 +53,6 @@ def includeme(config, plugin_map):
 
     # search for plugins
     get_evenly_plugins(config, plugin_map['plugins'], 'openregistry.assets.core.plugins')
+
+    # add related processes views
+    add_related_processes_views(config, ENDPOINTS['assets'], factory, AssetsRelatedProcessesResource)
