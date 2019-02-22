@@ -29,7 +29,7 @@ from openprocurement.api.utils import connection_mock_config
 from openprocurement.api.tests.blanks.related_processes import (
     RelatedProcessesTestMixinBase,  # forwarded import
 )
-from openprocurement.api.tests.fixtures.mocks import MigrationResourcesDTO_mock  # noqa fowrarded
+from openprocurement.api.tests.fixtures.mocks import MigrationResourcesDTO_mock  # noqa import fowrard
 
 MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG, ('plugins',), BASE_MOCK_CONFIG)
 DEFAULT_ACCELERATION = 1440
